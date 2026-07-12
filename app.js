@@ -364,13 +364,32 @@ function onPoolTileClick(tileId) {
   renderPool();
 }
 
+function nextEmptySlotAfter(entryId, index) {
+  const entries = currentSet().entries;
+  let passedCurrentSlot = false;
+
+  for (const entry of entries) {
+    const answers = state.answers.get(entry.id);
+    for (let slotIndex = 0; slotIndex < answers.length; slotIndex += 1) {
+      if (!passedCurrentSlot) {
+        if (entry.id === entryId && slotIndex === index) passedCurrentSlot = true;
+        continue;
+      }
+
+      if (!answers[slotIndex]) return { entryId: entry.id, index: slotIndex };
+    }
+  }
+
+  return null;
+}
+
 function placePoolTile(tileId, entryId, index) {
   const tile = state.poolTiles.find((item) => item.id === tileId);
   if (!tile) return;
 
   state.answers.get(entryId)[index] = { kanji: tile.kanji };
   state.selectedTileId = null;
-  state.activeSlot = null;
+  state.activeSlot = nextEmptySlotAfter(entryId, index);
   clearCheckedState();
   renderQuestions();
   renderPool();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kanji-practice-v8';
+const CACHE_NAME = 'kanji-practice-v9';
 const APP_FILES = [
   './',
   './index.html',
