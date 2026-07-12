@@ -153,7 +153,9 @@ select:focus, input:focus { outline: 2px solid rgba(124,156,255,.45); border-col
 }
 .prompt-label { display: block; color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; }
 .prompt-text { margin: .25rem 0 0; font-size: 1.2rem; }
-.slots { display: flex; flex-wrap: wrap; gap: .55rem; }
+.slots { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+.fixed-text { white-space: pre-wrap; font-size: 1.55rem; line-height: 1.25; }
+.empty-questions { padding: 2rem 1rem; color: var(--muted); text-align: center; }
 .slot,
 .kanji-tile,
 .search-kanji {

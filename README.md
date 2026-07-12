@@ -1,45 +1,28 @@
-# Kanji Practice
+# Genki Kanji Practice
 
-A static, file-driven kanji practice app for GitHub Pages.
+A static GitHub Pages app generated from the **Genki 3rd Edition Vocabulary Index** workbook.
 
-## Practice modes
+## Included data
 
-1. **Meaning → Kanji** — build each word from a reusable kanji pool.
-2. **Kanji → Reading** — type the reading in kana or accepted romaji.
-3. **Kanji → Meaning** — type an accepted meaning.
+- 23 practice sets: Lesson 1 through Lesson 23.
+- Entries come from the workbook's Conversation/Grammar lesson references (`会L1` through `会L23`).
+- Lesson-end column references such as `会L4(e)` are included in the same lesson.
+- Only vocabulary with an actual kanji written form is included.
+- A word referenced by more than one lesson appears in each relevant lesson set.
 
-## Edit the words
-
-Edit:
+The generated data is in:
 
 ```text
 data/kanji-practice.json
 ```
 
-A complete entry can look like this:
+## Practice modes
 
-```json
-{
-  "id": "school",
-  "word": "学校",
-  "meaning": "school",
-  "meanings": ["school"],
-  "readings": ["がっこう"],
-  "romaji": ["gakkou", "gakko"]
-}
-```
+1. **Meaning → Kanji** — fill only the kanji positions from a reusable pool. Kana and punctuation remain visible. For example, `食べる` displays a slot for `食` followed by fixed `べる`.
+2. **Kanji → Reading** — type the reading in kana or generated romaji.
+3. **Kanji → Meaning** — type an accepted English meaning.
 
-- `word` is the kanji word used by all three modes.
-- `meaning` is the prompt shown in Meaning → Kanji mode.
-- `meanings` contains every typed meaning that should be accepted.
-- `readings` contains every accepted kana reading.
-- `romaji` contains every accepted romaji spelling.
-
-Romaji comparison ignores capitalization, spaces, apostrophes, hyphens, and accents. Add spelling variants explicitly when you want both forms accepted, such as `gakkou` and `gakko`.
-
-The kanji pool is generated automatically from the selected set. Each unique kanji appears once and remains reusable after placement.
-
-## Test on this computer and a phone
+## Test locally or on a phone
 
 On Windows, double-click:
 
@@ -47,24 +30,10 @@ On Windows, double-click:
 serve-lan.bat
 ```
 
-The window prints two addresses, for example:
+Open the printed `Phone` address on a phone connected to the same Wi-Fi or local network.
 
-```text
-Computer: http://localhost:8000/
-Phone:    http://192.168.1.25:8000/
-```
+## Publish on GitHub Pages
 
-Open the `Phone` address on a phone connected to the same Wi-Fi or local network. Keep the server window open. If Windows Firewall asks, allow access on **Private networks**.
-
-The app itself does not use Python. The launcher only uses Python as a local static-file server when it is installed; otherwise it tries Node.js.
-
-## Host on GitHub Pages
-
-1. Create a GitHub repository.
-2. Put all files from this folder in the repository root.
-3. Open **Settings → Pages**.
-4. Choose **Deploy from a branch**.
-5. Select `main` and `/ (root)`.
-6. Save.
+Put these files at the repository root, commit, and push. In GitHub, open **Settings → Pages**, choose **Deploy from a branch**, then select `main` and `/ (root)`.
 
 No build step or backend is required.

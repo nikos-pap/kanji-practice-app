@@ -1,5 +1,6 @@
 const DATA_URL = './data/kanji-practice.json';
 const MODE_IDS = ['pool', 'reading', 'meaning'];
+const KANJI_PATTERN = /[\u3400-\u4DBF\u4E00-\u9FFF々〆ヵヶ]/u;
 
 const state = {
   data: null,
@@ -35,7 +36,11 @@ const els = {
 };
 
 function characters(text) {
-  return Array.from(text);
+  return Array.from(text || '');
+}
+
+function isKanjiCharacter(character) {
+  return KANJI_PATTERN.test(character);
 }
 
 function shuffle(items) {
@@ -49,6 +54,34 @@ function shuffle(items) {
 
 function wordFor(entry) {
   return entry.word || entry.answer || '';
+}
+
+function kanjiCharactersFor(entry) {
+  return characters(wordFor(entry)).filter(isKanjiCharacter);
+}
+
+function wordSegmentsFor(entry) {
+  const segments = [];
+  let fixedText = '';
+  let slotIndex = 0;
+
+  const flushFixed = () => {
+    if (!fixedText) return;
+    segments.push({ type: 'fixed', text: fixedText });
+    fixedText = '';
+  };
+
+  for (const character of characters(wordFor(entry))) {
+    if (isKanjiCharacter(character)) {
+      flushFixed();
+      segments.push({ type: 'kanji', expected: character, slotIndex });
+      slotIndex += 1;
+    } else {
+      fixedText += character;
+    }
+  }
+  flushFixed();
+  return segments;
 }
 
 function meaningsFor(entry) {
@@ -85,6 +118,9 @@ function validateData(data) {
     for (const entry of set.entries) {
       if (!entry.id || !wordFor(entry)) {
         throw new Error(`Invalid entry in set "${set.id}". Each entry needs id and word.`);
+      }
+      if (kanjiCharactersFor(entry).length === 0) {
+        throw new Error(`Entry "${entry.id}" has no kanji in its written form.`);
       }
       if (meaningsFor(entry).length === 0) {
         throw new Error(`Entry "${entry.id}" needs meaning or meanings.`);
@@ -129,17 +165,17 @@ function defaultModes() {
     {
       id: 'pool',
       label: 'Meaning → Kanji',
-      description: 'Build each kanji word from the shared reusable pool.',
+      description: 'Build each word from the shared reusable kanji pool.',
     },
     {
       id: 'reading',
       label: 'Kanji → Reading',
-      description: 'See the kanji word and type its reading.',
+      description: 'See the written word and type its reading.',
     },
     {
       id: 'meaning',
       label: 'Kanji → Meaning',
-      description: 'See the kanji word and type its meaning.',
+      description: 'See the written word and type its meaning.',
     },
   ];
 }
@@ -179,8 +215,8 @@ function openMode(mode) {
 
   const subtitles = {
     pool: 'Build the word shown by its meaning.',
-    reading: 'Type the reading of each kanji word.',
-    meaning: 'Type the meaning of each kanji word.',
+    reading: 'Type the reading of each written word.',
+    meaning: 'Type the meaning of each written word.',
   };
   els.subtitle.textContent = subtitles[mode];
   els.poolPanel.classList.toggle('hidden', mode !== 'pool');
@@ -193,12 +229,16 @@ function currentSet() {
   return state.data.practiceSets.find((set) => set.id === state.setId) || state.data.practiceSets[0];
 }
 
+function currentEntries() {
+  return currentSet().entries;
+}
+
 function populateSetSelect() {
   els.setSelect.replaceChildren();
   for (const set of state.data.practiceSets) {
     const option = document.createElement('option');
     option.value = set.id;
-    option.textContent = set.title;
+    option.textContent = `${set.title} (${set.entries.length})`;
     option.selected = set.id === state.setId;
     els.setSelect.append(option);
   }
@@ -211,9 +251,9 @@ function resetPractice() {
   state.checked = false;
   hideStatus();
 
-  for (const entry of currentSet().entries) {
+  for (const entry of currentEntries()) {
     const initialAnswer = state.mode === 'pool'
-      ? Array(characters(wordFor(entry)).length).fill(null)
+      ? Array(kanjiCharactersFor(entry).length).fill(null)
       : '';
     state.answers.set(entry.id, initialAnswer);
   }
@@ -235,7 +275,7 @@ function createPool() {
 function renderQuestions() {
   els.questionsPanel.replaceChildren();
 
-  for (const entry of currentSet().entries) {
+  for (const entry of currentEntries()) {
     const fragment = els.questionTemplate.content.cloneNode(true);
     const card = fragment.querySelector('.question-card');
     const promptLabel = fragment.querySelector('.prompt-label');
@@ -255,11 +295,11 @@ function renderQuestions() {
       slots.classList.remove('hidden');
       renderSlots(entry, slots);
     } else {
-      promptLabel.textContent = 'Kanji word';
+      promptLabel.textContent = 'Written word';
       prompt.textContent = wordFor(entry);
       prompt.lang = 'ja';
       typedAnswer.classList.remove('hidden');
-      typedLabel.textContent = state.mode === 'reading' ? 'Reading' : 'Meaning';
+      typedLabel.textContent = state.mode === 'reading' ? 'Reading (kana or romaji)' : 'Meaning';
       typedInput.placeholder = state.mode === 'reading' ? 'Type kana or romaji…' : 'Type the meaning…';
       typedInput.value = state.answers.get(entry.id) || '';
       typedInput.lang = state.mode === 'reading' ? 'ja' : 'en';
@@ -279,13 +319,24 @@ function renderQuestions() {
 function renderSlots(entry, slots) {
   const answerValues = state.answers.get(entry.id);
 
-  answerValues.forEach((value, index) => {
+  for (const segment of wordSegmentsFor(entry)) {
+    if (segment.type === 'fixed') {
+      const fixed = document.createElement('span');
+      fixed.className = 'fixed-text';
+      fixed.textContent = segment.text;
+      fixed.lang = 'ja';
+      slots.append(fixed);
+      continue;
+    }
+
+    const index = segment.slotIndex;
+    const value = answerValues[index];
     const slot = document.createElement('button');
     slot.type = 'button';
     slot.className = 'slot';
     slot.dataset.entryId = entry.id;
     slot.dataset.slotIndex = String(index);
-    slot.setAttribute('aria-label', `Slot ${index + 1} for ${primaryMeaningFor(entry)}`);
+    slot.setAttribute('aria-label', `Kanji slot ${index + 1} for ${primaryMeaningFor(entry)}`);
 
     if (value?.kanji) {
       slot.textContent = value.kanji;
@@ -297,8 +348,7 @@ function renderSlots(entry, slots) {
     slot.setAttribute('aria-pressed', String(isActive));
 
     if (state.checked) {
-      const expected = characters(wordFor(entry))[index];
-      slot.classList.add(slot.textContent === expected ? 'correct' : 'incorrect');
+      slot.classList.add(slot.textContent === segment.expected ? 'correct' : 'incorrect');
     }
 
     slot.addEventListener('click', () => onSlotClick(entry.id, index));
@@ -309,7 +359,7 @@ function renderSlots(entry, slots) {
       if (tileId) placePoolTile(tileId, entry.id, index);
     });
     slots.append(slot);
-  });
+  }
 }
 
 function renderResult(entry, card, result) {
@@ -365,17 +415,15 @@ function onPoolTileClick(tileId) {
 }
 
 function nextEmptySlotAfter(entryId, index) {
-  const entries = currentSet().entries;
   let passedCurrentSlot = false;
 
-  for (const entry of entries) {
+  for (const entry of currentEntries()) {
     const answers = state.answers.get(entry.id);
     for (let slotIndex = 0; slotIndex < answers.length; slotIndex += 1) {
       if (!passedCurrentSlot) {
         if (entry.id === entryId && slotIndex === index) passedCurrentSlot = true;
         continue;
       }
-
       if (!answers[slotIndex]) return { entryId: entry.id, index: slotIndex };
     }
   }
@@ -446,8 +494,8 @@ function renderPool() {
 function uniqueKanji() {
   const seen = new Set();
   const output = [];
-  for (const entry of currentSet().entries) {
-    for (const kanji of characters(wordFor(entry))) {
+  for (const entry of currentEntries()) {
+    for (const kanji of kanjiCharactersFor(entry)) {
       if (!seen.has(kanji)) {
         seen.add(kanji);
         output.push(kanji);
@@ -472,7 +520,7 @@ function normalizeRomaji(value) {
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLowerCase()
-    .replace(/[\s'’._-]+/g, '');
+    .replace(/[\s'’._+()（）［］\[\]{}「」『』・,，/／~〜～-]+/g, '');
 }
 
 function normalizeMeaning(value) {
@@ -484,12 +532,12 @@ function normalizeMeaning(value) {
     .replace(/[.!?]+$/g, '');
 }
 
-function actualPoolAnswer(entryId) {
-  return state.answers.get(entryId).map((value) => value?.kanji || '').join('');
-}
-
 function isEntryCorrect(entry) {
-  if (state.mode === 'pool') return actualPoolAnswer(entry.id) === wordFor(entry);
+  if (state.mode === 'pool') {
+    const expected = kanjiCharactersFor(entry);
+    const actual = state.answers.get(entry.id).map((value) => value?.kanji || '');
+    return expected.length === actual.length && expected.every((kanji, index) => actual[index] === kanji);
+  }
 
   const typed = state.answers.get(entry.id) || '';
   if (state.mode === 'reading') {
@@ -510,7 +558,7 @@ function checkAnswers() {
   state.checked = true;
   state.selectedTileId = null;
   state.activeSlot = null;
-  const entries = currentSet().entries;
+  const entries = currentEntries();
   const correctCount = entries.filter(isEntryCorrect).length;
   renderQuestions();
   renderPool();
