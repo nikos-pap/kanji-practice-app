@@ -1,0 +1,120 @@
+{
+  "version": 4,
+  "app": {
+    "title": "Kanji Practice",
+    "availableModes": [
+      {
+        "id": "pool",
+        "label": "Meaning → Kanji",
+        "description": "Build each kanji word from the shared reusable pool."
+      },
+      {
+        "id": "reading",
+        "label": "Kanji → Reading",
+        "description": "See the kanji word and type its reading."
+      },
+      {
+        "id": "meaning",
+        "label": "Kanji → Meaning",
+        "description": "See the kanji word and type its meaning."
+      }
+    ]
+  },
+  "practiceSets": [
+    {
+      "id": "starter-words",
+      "title": "Starter Words",
+      "promptLanguage": "en",
+      "entries": [
+        {
+          "id": "electric-train",
+          "word": "電車",
+          "meaning": "electric train",
+          "meanings": [
+            "electric train"
+          ],
+          "readings": [
+            "でんしゃ"
+          ],
+          "romaji": [
+            "densha"
+          ]
+        },
+        {
+          "id": "school",
+          "word": "学校",
+          "meaning": "school",
+          "meanings": [
+            "school"
+          ],
+          "readings": [
+            "がっこう"
+          ],
+          "romaji": [
+            "gakkou",
+            "gakko"
+          ]
+        },
+        {
+          "id": "japan",
+          "word": "日本",
+          "meaning": "Japan",
+          "meanings": [
+            "Japan"
+          ],
+          "readings": [
+            "にほん",
+            "にっぽん"
+          ],
+          "romaji": [
+            "nihon",
+            "nippon"
+          ]
+        },
+        {
+          "id": "teacher",
+          "word": "先生",
+          "meaning": "teacher",
+          "meanings": [
+            "teacher"
+          ],
+          "readings": [
+            "せんせい"
+          ],
+          "romaji": [
+            "sensei"
+          ]
+        },
+        {
+          "id": "volcano",
+          "word": "火山",
+          "meaning": "volcano",
+          "meanings": [
+            "volcano"
+          ],
+          "readings": [
+            "かざん"
+          ],
+          "romaji": [
+            "kazan"
+          ]
+        },
+        {
+          "id": "wednesday",
+          "word": "水曜日",
+          "meaning": "Wednesday",
+          "meanings": [
+            "Wednesday"
+          ],
+          "readings": [
+            "すいようび"
+          ],
+          "romaji": [
+            "suiyoubi",
+            "suiyobi"
+          ]
+        }
+      ]
+    }
+  ]
+}

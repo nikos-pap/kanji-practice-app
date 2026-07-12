@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="description" content="A file-driven kanji practice app." />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>Kanji Practice</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <button id="backButton" class="button ghost hidden" type="button">← Modes</button>
+      <div>
+        <h1 id="appTitle">Kanji Practice</h1>
+        <p id="screenSubtitle">Choose how you want to practice.</p>
+      </div>
+      <button id="resetButton" class="button ghost hidden" type="button">Reset</button>
+    </header>
+
+    <section id="loadingScreen" class="panel centered">
+      <p>Loading practice file…</p>
+    </section>
+
+    <section id="errorScreen" class="panel centered hidden" role="alert">
+      <h2>Could not load the practice file</h2>
+      <p id="errorMessage"></p>
+      <p>Edit <code>data/kanji-practice.json</code> and refresh the page.</p>
+    </section>
+
+    <section id="modeScreen" class="hidden">
+      <div id="modeCards" class="mode-grid"></div>
+    </section>
+
+    <section id="practiceScreen" class="hidden">
+      <div class="practice-toolbar panel">
+        <label>
+          Practice set
+          <select id="setSelect"></select>
+        </label>
+        <div class="toolbar-actions">
+          <button id="checkButton" class="button primary" type="button">Check answers</button>
+        </div>
+      </div>
+
+      <div id="statusMessage" class="status hidden" aria-live="polite"></div>
+
+      <div class="practice-layout">
+        <div class="practice-main">
+          <section id="searchPanel" class="panel hidden">
+            <div class="search-header">
+              <div>
+                <h2>Kanji search</h2>
+                <p>Choose a slot, then search by kanji or reading.</p>
+              </div>
+              <input id="kanjiSearch" type="search" inputmode="text" placeholder="Search kanji, kana, or romaji…" autocomplete="off" />
+            </div>
+            <div id="searchResults" class="kanji-bank"></div>
+          </section>
+
+          <section id="questionsPanel" class="questions"></section>
+        </div>
+
+        <section id="poolPanel" class="panel pool-panel hidden">
+          <div class="pool-heading">
+            <div>
+              <h2>Kanji pool</h2>
+              <p id="poolHint">Tap a tile, then a slot — or choose a slot first.</p>
+            </div>
+            <button id="shuffleButton" class="button ghost" type="button">Shuffle</button>
+          </div>
+          <div id="kanjiPool" class="kanji-pool" aria-label="Kanji pool"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <template id="questionTemplate">
+    <article class="question-card">
+      <div class="prompt-block">
+        <span class="prompt-label">Prompt</span>
+        <h2 class="prompt-text"></h2>
+      </div>
+      <div class="slots" aria-label="Answer slots"></div>
+      <div class="result-text" aria-live="polite"></div>
+    </article>
+  </template>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
