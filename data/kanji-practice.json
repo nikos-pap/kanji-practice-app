@@ -11,8 +11,13 @@
     "availableModes": [
       {
         "id": "pool",
-        "label": "Meaning → Kanji",
-        "description": "Build each word by filling only its kanji; kana and punctuation stay visible."
+        "label": "Kanji Spelling",
+        "description": "Recall a vocabulary word’s kanji spelling from its meaning."
+      },
+      {
+        "id": "japanese",
+        "label": "Word → Japanese",
+        "description": "See an English meaning and recall the Japanese word in kana or kanji."
       },
       {
         "id": "reading",
@@ -613,10 +618,12 @@
             "thirty minutes"
           ],
           "readings": [
-            "さんじっぷん/さんじゅっぷん"
+            "さんじっぷん",
+            "さんじゅっぷん"
           ],
           "romaji": [
-            "sanjippunsanjuppun"
+            "sanjippun",
+            "sanjuppun"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 693,
@@ -888,11 +895,14 @@
             "eighteen minutes"
           ],
           "readings": [
-            "じゅうはちふん/じゅうはっぷん"
+            "じゅうはちふん",
+            "じゅうはっぷん"
           ],
           "romaji": [
-            "juuhachifunjuuhappun",
-            "juhachifunjuhappun"
+            "juuhachifun",
+            "juuhappun",
+            "juhachifun",
+            "juhappun"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 782,
@@ -1222,10 +1232,12 @@
             "what"
           ],
           "readings": [
-            "なに/なん"
+            "なに",
+            "なん"
           ],
           "romaji": [
-            "naninan"
+            "nani",
+            "nan"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 1218,
@@ -1260,10 +1272,12 @@
             "what"
           ],
           "readings": [
-            "なん/なに"
+            "なん",
+            "なに"
           ],
           "romaji": [
-            "nannani"
+            "nan",
+            "nani"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 1231,
@@ -1521,9 +1535,11 @@
         {
           "id": "genki-1361",
           "word": "～番",
-          "meaning": "number . . .",
+          "meaning": "position in an order; turn",
           "meanings": [
-            "number . . ."
+            "position in an order",
+            "turn",
+            "number in a sequence"
           ],
           "readings": [
             "～ばん"
@@ -1541,8 +1557,9 @@
         {
           "id": "genki-1363",
           "word": "番号",
-          "meaning": "number",
+          "meaning": "number (as in a phone number)",
           "meanings": [
+            "number (as in a phone number)",
             "number"
           ],
           "readings": [
@@ -12178,9 +12195,11 @@
         {
           "id": "genki-1361",
           "word": "～番",
-          "meaning": "number . . .",
+          "meaning": "position in an order; turn",
           "meanings": [
-            "number . . ."
+            "position in an order",
+            "turn",
+            "number in a sequence"
           ],
           "readings": [
             "～ばん"

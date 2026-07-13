@@ -64,9 +64,9 @@ button { color: inherit; touch-action: manipulation; }
 
 .mode-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-  max-width: 1080px;
+  max-width: 900px;
   margin: 4rem auto 0;
 }
 
@@ -87,6 +87,18 @@ button { color: inherit; touch-action: manipulation; }
   background: var(--surface-2);
   outline: none;
 }
+
+.mode-card:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.mode-card:disabled:hover,
+.mode-card:disabled:focus-visible {
+  transform: none;
+  border-color: var(--border);
+  background: rgba(17,24,39,.95);
+}
+.mode-card:disabled .enter { color: var(--muted); }
 
 .mode-icon { font-size: 3rem; line-height: 1; }
 .mode-card h2 { margin: 1.25rem 0 .55rem; font-size: 1.5rem; }
@@ -222,7 +234,7 @@ select:focus, input:focus { outline: 2px solid rgba(124,156,255,.45); border-col
   gap: 1rem;
 }
 .practice-main { min-width: 0; }
-#practiceScreen:not(.pool-mode) .practice-layout { display: block; }
+#practiceScreen.typed-mode .practice-layout { display: block; }
 #practiceScreen.typed-mode .practice-main { max-width: 900px; margin: 0 auto; }
 .questions { display: grid; gap: .75rem; }
 
@@ -401,7 +413,10 @@ select:focus, input:focus { outline: 2px solid rgba(124,156,255,.45); border-col
   background: #1c2940;
   cursor: grab;
 }
-.kanji-tile:hover, .search-kanji:hover { border-color: var(--accent); transform: translateY(-1px); }
+.kanji-tile:hover, .search-kanji:hover {
+  border-color: var(--accent);
+  background: #243552;
+}
 .kanji-tile.selected, .search-kanji.selected { outline: 3px solid rgba(124,156,255,.45); border-color: var(--accent); }
 .kanji-tile:active { cursor: grabbing; }
 .search-kanji:disabled { opacity: .45; cursor: not-allowed; transform: none; }
@@ -412,6 +427,16 @@ select:focus, input:focus { outline: 2px solid rgba(124,156,255,.45); border-col
   padding: .75rem 0;
   color: var(--muted);
 }
+
+#practiceScreen.japanese-mode #progressPanel { display: none; }
+#practiceScreen.japanese-mode .question-card {
+  min-height: 225px;
+  grid-template-columns: 1fr;
+  align-content: center;
+  padding: 1.5rem;
+}
+#practiceScreen.japanese-mode .prompt-text { font-size: 1.55rem; }
+#practiceScreen.japanese-mode .typed-input { font-size: 1.45rem; }
 
 code { color: #c7d2fe; }
 
@@ -463,6 +488,7 @@ code { color: #c7d2fe; }
     font-size: 0;
   }
   .mode-card .enter::after { content: "›"; font-size: 1.8rem; }
+  .mode-card:disabled .enter::after { content: "Paused"; font-size: .7rem; }
 
   .practice-toolbar {
     position: sticky;
@@ -535,7 +561,7 @@ code { color: #c7d2fe; }
   #practiceScreen.pool-mode {
     padding-bottom: calc(var(--pool-tray-height) + .75rem);
   }
-  #practiceScreen:not(.pool-mode) .practice-layout { display: block; }
+  #practiceScreen.typed-mode .practice-layout { display: block; }
   #practiceScreen.typed-mode .practice-main { max-width: none; }
 
   .questions { gap: .55rem; }
@@ -623,6 +649,14 @@ code { color: #c7d2fe; }
     font-size: 1.45rem;
   }
   .fixed-text { font-size: 1.35rem; }
+
+  #practiceScreen.japanese-mode .practice-layout { display: block; }
+  #practiceScreen.japanese-mode .question-card {
+    min-height: 145px;
+    padding: 1.35rem .75rem .75rem;
+  }
+  #practiceScreen.japanese-mode .prompt-text { font-size: 1.2rem; }
+  #practiceScreen.japanese-mode .typed-input { min-height: 50px; font-size: 1.25rem; }
 }
 
 @media (max-width: 480px) {
@@ -668,6 +702,20 @@ code { color: #c7d2fe; }
 .pool-study-actions #skipButton { border-color: #405270; }
 
 @media (min-width: 901px) {
+  #practiceScreen.japanese-mode .practice-toolbar {
+    display: grid;
+    grid-template-columns: minmax(220px, 320px) auto;
+    align-items: end;
+    gap: .75rem;
+    padding: .75rem;
+    margin-bottom: .75rem;
+  }
+  #practiceScreen.japanese-mode .toolbar-actions { justify-self: end; }
+  #practiceScreen.japanese-mode .practice-toolbar select { width: 100%; }
+  #practiceScreen.japanese-mode .practice-layout {
+    grid-template-columns: minmax(0, 720px);
+    justify-content: center;
+  }
   #practiceScreen.pool-mode .practice-toolbar {
     display: grid;
     grid-template-columns: minmax(220px, 320px) auto;

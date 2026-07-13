@@ -1,11 +1,53 @@
-const DATA_URL = './data/kanji-practice.json';
+const DATA_URL = './data/kanji-practice.json?v=ban-gloss-20260713';
 const KANJI_READINGS_URL = './data/kanji-readings.txt';
-const MODE_IDS = ['pool', 'reading', 'meaning'];
+const MODE_IDS = ['pool', 'japanese', 'reading', 'meaning'];
+const DISABLED_MODE_IDS = new Set(['reading', 'meaning']);
 const KANJI_PATTERN = /[\u3400-\u4DBF\u4E00-\u9FFF々〆ヵヶ]/u;
 const PROGRESS_STORAGE_KEY = 'genki-kanji-progress-v1';
 const ACTIVE_ENTRY_LIMIT = 8;
 const MASTERED_LEVEL = 4;
 const REVIEW_INTERVALS_MS = [0, 10 * 60 * 1000, 24 * 60 * 60 * 1000, 3 * 24 * 60 * 60 * 1000, 7 * 24 * 60 * 60 * 1000];
+const SINGLE_WORD_MODES = new Set(['pool', 'japanese']);
+const ROMAJI_TO_HIRAGANA = {
+  a: 'あ', i: 'い', u: 'う', e: 'え', o: 'お',
+  ka: 'か', ki: 'き', ku: 'く', ke: 'け', ko: 'こ',
+  ga: 'が', gi: 'ぎ', gu: 'ぐ', ge: 'げ', go: 'ご',
+  sa: 'さ', shi: 'し', si: 'し', su: 'す', se: 'せ', so: 'そ',
+  za: 'ざ', ji: 'じ', zi: 'じ', zu: 'ず', ze: 'ぜ', zo: 'ぞ',
+  ta: 'た', chi: 'ち', ti: 'ち', tsu: 'つ', tu: 'つ', te: 'て', to: 'と',
+  da: 'だ', di: 'ぢ', du: 'づ', de: 'で', do: 'ど',
+  na: 'な', ni: 'に', nu: 'ぬ', ne: 'ね', no: 'の',
+  ha: 'は', hi: 'ひ', fu: 'ふ', hu: 'ふ', he: 'へ', ho: 'ほ',
+  ba: 'ば', bi: 'び', bu: 'ぶ', be: 'べ', bo: 'ぼ',
+  pa: 'ぱ', pi: 'ぴ', pu: 'ぷ', pe: 'ぺ', po: 'ぽ',
+  ma: 'ま', mi: 'み', mu: 'む', me: 'め', mo: 'も',
+  ya: 'や', yu: 'ゆ', yo: 'よ',
+  ra: 'ら', ri: 'り', ru: 'る', re: 'れ', ro: 'ろ',
+  wa: 'わ', wi: 'うぃ', we: 'うぇ', wo: 'を',
+  kya: 'きゃ', kyu: 'きゅ', kyo: 'きょ',
+  gya: 'ぎゃ', gyu: 'ぎゅ', gyo: 'ぎょ',
+  sha: 'しゃ', shu: 'しゅ', sho: 'しょ', sya: 'しゃ', syu: 'しゅ', syo: 'しょ',
+  ja: 'じゃ', ju: 'じゅ', jo: 'じょ', jya: 'じゃ', jyu: 'じゅ', jyo: 'じょ',
+  cha: 'ちゃ', chu: 'ちゅ', cho: 'ちょ', cya: 'ちゃ', cyu: 'ちゅ', cyo: 'ちょ',
+  nya: 'にゃ', nyu: 'にゅ', nyo: 'にょ',
+  hya: 'ひゃ', hyu: 'ひゅ', hyo: 'ひょ',
+  bya: 'びゃ', byu: 'びゅ', byo: 'びょ',
+  pya: 'ぴゃ', pyu: 'ぴゅ', pyo: 'ぴょ',
+  mya: 'みゃ', myu: 'みゅ', myo: 'みょ',
+  rya: 'りゃ', ryu: 'りゅ', ryo: 'りょ',
+  she: 'しぇ', je: 'じぇ', che: 'ちぇ',
+  fa: 'ふぁ', fi: 'ふぃ', fe: 'ふぇ', fo: 'ふぉ',
+  va: 'ゔぁ', vi: 'ゔぃ', vu: 'ゔ', ve: 'ゔぇ', vo: 'ゔぉ',
+  tsa: 'つぁ', tsi: 'つぃ', tse: 'つぇ', tso: 'つぉ',
+  tha: 'てゃ', thi: 'てぃ', thu: 'てゅ', the: 'てぇ', tho: 'てょ',
+  dha: 'でゃ', dhi: 'でぃ', dhu: 'でゅ', dhe: 'でぇ', dho: 'でょ',
+  kwa: 'くぁ', kwi: 'くぃ', kwe: 'くぇ', kwo: 'くぉ',
+  gwa: 'ぐぁ', gwi: 'ぐぃ', gwe: 'ぐぇ', gwo: 'ぐぉ',
+  xa: 'ぁ', xi: 'ぃ', xu: 'ぅ', xe: 'ぇ', xo: 'ぉ',
+  la: 'ぁ', li: 'ぃ', lu: 'ぅ', le: 'ぇ', lo: 'ぉ',
+  xya: 'ゃ', xyu: 'ゅ', xyo: 'ょ', lya: 'ゃ', lyu: 'ゅ', lyo: 'ょ',
+  xtsu: 'っ', ltsu: 'っ',
+};
 // Unicode 17 kRSUnicode radical/residual-stroke order, limited to kanji used by this app.
 const KANJI_DICTIONARY_ORDER = [
   '一七丈三上下不世両中主久乏乗九乳乾予事二五交人今介仕他付代以仲伎休会伝伺似低住体何作使例供価便係保信俳個借停健側傘備働僕僚優元兄先光免入全八公六共具内円冊再最写冬冷出分切刈初別利券',
@@ -142,8 +184,30 @@ function primaryMeaningFor(entry) {
   return entry.meaning || meaningsFor(entry)[0] || entry.prompt || '';
 }
 
+function splitReadingAlternatives(value) {
+  const alternatives = [];
+  let current = '';
+  let depth = 0;
+
+  for (const character of characters(String(value))) {
+    if (character === '(' || character === '（') depth += 1;
+    if ((character === '/' || character === '／') && depth === 0) {
+      if (current.trim()) alternatives.push(current.trim());
+      current = '';
+      continue;
+    }
+    current += character;
+    if ((character === ')' || character === '）') && depth > 0) depth -= 1;
+  }
+
+  if (current.trim()) alternatives.push(current.trim());
+  return alternatives;
+}
+
 function readingsFor(entry) {
-  return Array.isArray(entry.readings) ? entry.readings : [];
+  return Array.isArray(entry.readings)
+    ? entry.readings.flatMap(splitReadingAlternatives)
+    : [];
 }
 
 function romajiFor(entry) {
@@ -232,16 +296,29 @@ function showScreen(name) {
   els.modeScreen.classList.toggle('hidden', name !== 'modes');
   els.practiceScreen.classList.toggle('hidden', name !== 'practice');
   els.backButton.classList.toggle('hidden', name !== 'practice');
-  els.resetButton.classList.toggle('hidden', name !== 'practice' || state.mode === 'pool');
+  els.resetButton.classList.toggle('hidden', name !== 'practice' || isSingleWordMode());
   requestAnimationFrame(updatePoolTrayHeight);
+}
+
+function isSingleWordMode(mode = state.mode) {
+  return SINGLE_WORD_MODES.has(mode);
+}
+
+function usesKanjiPool(mode = state.mode) {
+  return mode === 'pool';
 }
 
 function defaultModes() {
   return [
     {
       id: 'pool',
-      label: 'Meaning → Kanji',
-      description: 'Build each word from the shared reusable kanji pool.',
+      label: 'Kanji Spelling',
+      description: 'Recall a vocabulary word’s kanji spelling from its meaning.',
+    },
+    {
+      id: 'japanese',
+      label: 'Word → Japanese',
+      description: 'See an English meaning and recall the Japanese word in kana or kanji.',
     },
     {
       id: 'reading',
@@ -258,6 +335,7 @@ function defaultModes() {
 
 function modeIcon(modeId) {
   if (modeId === 'pool') return '組';
+  if (modeId === 'japanese') return '書';
   if (modeId === 'reading') return '読';
   return '意';
 }
@@ -270,21 +348,24 @@ function renderModeScreen() {
   els.modeCards.replaceChildren();
 
   for (const mode of modes.filter((item) => MODE_IDS.includes(item.id))) {
+    const disabled = DISABLED_MODE_IDS.has(mode.id);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'mode-card';
+    button.disabled = disabled;
     button.innerHTML = `
       <span class="mode-icon" aria-hidden="true">${modeIcon(mode.id)}</span>
       <h2>${escapeHtml(mode.label)}</h2>
       <p>${escapeHtml(mode.description || '')}</p>
-      <span class="enter">Open mode →</span>
+      <span class="enter">${disabled ? 'Unavailable for now' : 'Open mode →'}</span>
     `;
-    button.addEventListener('click', () => openMode(mode.id));
+    if (!disabled) button.addEventListener('click', () => openMode(mode.id));
     els.modeCards.append(button);
   }
 }
 
 function openMode(mode) {
+  if (DISABLED_MODE_IDS.has(mode)) return;
   state.mode = mode;
   state.lastStudyEntryId = null;
   state.skippedStudyEntryIds.clear();
@@ -295,17 +376,19 @@ function openMode(mode) {
   resetPractice();
 
   const subtitles = {
-    pool: 'Build the word shown by its meaning.',
+    pool: 'Recall the kanji spelling of the word shown by its meaning.',
+    japanese: 'Recall the Japanese word from its English meaning.',
     reading: 'Type the reading of each written word.',
     meaning: 'Type the meaning of each written word.',
   };
   els.subtitle.textContent = subtitles[mode];
   els.poolPanel.classList.toggle('hidden', mode !== 'pool');
-  els.studyContext.classList.toggle('hidden', mode !== 'pool');
-  els.poolStudyActions.classList.toggle('hidden', mode !== 'pool');
-  els.checkButton.classList.toggle('hidden', mode === 'pool');
+  els.studyContext.classList.toggle('hidden', !isSingleWordMode(mode));
+  els.poolStudyActions.classList.toggle('hidden', !isSingleWordMode(mode));
+  els.checkButton.classList.toggle('hidden', isSingleWordMode(mode));
   els.practiceScreen.classList.toggle('pool-mode', mode === 'pool');
-  els.practiceScreen.classList.toggle('typed-mode', mode !== 'pool');
+  els.practiceScreen.classList.toggle('japanese-mode', mode === 'japanese');
+  els.practiceScreen.classList.toggle('typed-mode', !isSingleWordMode(mode));
   document.body.classList.toggle('pool-practice', mode === 'pool');
   showScreen('practice');
 }
@@ -381,10 +464,10 @@ function selectActiveEntries() {
 
   dueReviewed.sort((a, b) => a.dueAt - b.dueAt || a.sourceIndex - b.sourceIndex);
   const orderedCandidates = [...dueReviewed, ...newEntries];
-  const candidates = state.mode === 'pool' ? shuffle(orderedCandidates) : orderedCandidates;
+  const candidates = isSingleWordMode() ? shuffle(orderedCandidates) : orderedCandidates;
   let selected;
 
-  if (state.mode === 'pool') {
+  if (isSingleWordMode()) {
     let available = candidates.filter(({ entry }) => (
       entry.id !== state.lastStudyEntryId && !state.skippedStudyEntryIds.has(entry.id)
     ));
@@ -456,7 +539,7 @@ function renderProgress() {
   els.progressTrack.setAttribute('aria-valuenow', String(Math.round(masteredPercent)));
 
   if (state.activeEntryIds.length > 0) {
-    els.progressNote.textContent = state.mode === 'pool'
+    els.progressNote.textContent = isSingleWordMode()
       ? 'One word at a time. Progress is saved on this device.'
       : `${state.activeEntryIds.length} shown in lesson order. Progress is saved on this device.`;
   } else if (stats.nextDueAt) {
@@ -494,7 +577,7 @@ function resetPractice({ preservePool = false } = {}) {
     state.answers.set(entry.id, initialAnswer);
   }
 
-  if (state.mode === 'pool') {
+  if (usesKanjiPool()) {
     if (!preservePool || state.poolTiles.length === 0) createPool();
   } else {
     state.poolTiles = [];
@@ -521,7 +604,7 @@ function activateFirstEmptyStudySlot() {
 }
 
 function renderStudyContext() {
-  if (state.mode !== 'pool') return;
+  if (!isSingleWordMode()) return;
   const stats = progressStats();
   const started = stats.learning + stats.mastered;
   const startedPercent = stats.total ? (started / stats.total) * 100 : 0;
@@ -562,7 +645,7 @@ function renderQuestions() {
 
   els.checkButton.disabled = false;
   els.poolCheckButton.disabled = false;
-  const entriesToRender = state.mode === 'pool'
+  const entriesToRender = isSingleWordMode()
     ? [currentStudyEntry()].filter(Boolean)
     : currentEntries();
   for (const entry of entriesToRender) {
@@ -588,21 +671,43 @@ function renderQuestions() {
       slots.classList.remove('hidden');
       renderSlots(entry, slots);
     } else {
-      promptLabel.textContent = 'Written word';
-      prompt.textContent = wordFor(entry);
-      prompt.lang = 'ja';
+      const writesJapanese = state.mode === 'japanese';
+      promptLabel.textContent = writesJapanese ? 'Meaning' : 'Written word';
+      prompt.textContent = writesJapanese ? primaryMeaningFor(entry) : wordFor(entry);
+      prompt.lang = writesJapanese ? 'en' : 'ja';
+      if (writesJapanese) {
+        wordLevel.textContent = reviewLevelLabel(entry.id);
+        wordLevel.classList.remove('hidden');
+      }
       typedAnswer.classList.remove('hidden');
-      typedLabel.textContent = state.mode === 'reading' ? 'Reading (kana or romaji)' : 'Meaning';
-      typedInput.placeholder = state.mode === 'reading' ? 'Type kana or romaji…' : 'Type the meaning…';
+      typedLabel.textContent = writesJapanese
+        ? 'Japanese word (kana or kanji)'
+        : state.mode === 'reading' ? 'Reading (kana or romaji)' : 'Meaning';
+      typedInput.placeholder = writesJapanese
+        ? 'Type romaji, kana, or kanji…'
+        : state.mode === 'reading' ? 'Type kana or romaji…' : 'Type the meaning…';
       typedInput.value = state.answers.get(entry.id) || '';
       typedInput.disabled = state.checked;
-      typedInput.lang = state.mode === 'reading' ? 'ja' : 'en';
+      typedInput.lang = writesJapanese || state.mode === 'reading' ? 'ja' : 'en';
       typedInput.spellcheck = state.mode === 'meaning';
-      typedInput.setAttribute('aria-label', `${typedLabel.textContent} for ${wordFor(entry)}`);
-      typedInput.addEventListener('input', () => {
+      typedInput.setAttribute(
+        'aria-label',
+        writesJapanese ? `Japanese answer for ${primaryMeaningFor(entry)}` : `${typedLabel.textContent} for ${wordFor(entry)}`,
+      );
+      typedInput.addEventListener('input', (event) => {
+        if (writesJapanese && !event.isComposing) {
+          convertJapaneseInput(entry, typedInput, event);
+        }
         state.answers.set(entry.id, typedInput.value);
         clearCheckedVisuals();
       });
+      if (writesJapanese) {
+        typedInput.addEventListener('compositionend', () => {
+          state.answers.set(entry.id, typedInput.value);
+          clearCheckedVisuals();
+        });
+        typedInput.addEventListener('blur', () => delete typedInput.dataset.pendingTrailingN);
+      }
     }
 
     if (state.checked) renderResult(entry, card, result);
@@ -663,13 +768,17 @@ function renderResult(entry, card, result) {
   card.classList.add(correct ? 'answer-correct' : 'answer-incorrect');
 
   if (correct) {
-    result.textContent = state.mode === 'pool' ? 'Correct — nice recall.' : 'Correct';
+    if (state.mode === 'pool') result.textContent = 'Correct — nice recall.';
+    else if (state.mode === 'japanese') result.textContent = `Correct — ${stripTemplateMarkers(wordFor(entry))}`;
+    else result.textContent = 'Correct';
     result.classList.add('good');
     return;
   }
 
   if (state.mode === 'pool') {
     result.textContent = `Correct answer: ${wordFor(entry)}`;
+  } else if (state.mode === 'japanese') {
+    result.textContent = `Answer: ${japaneseAnswerForms(entry).join(' / ')}`;
   } else if (state.mode === 'reading') {
     const accepted = [...readingsFor(entry), ...romajiFor(entry)];
     result.textContent = `Accepted reading: ${accepted.join(' / ')}`;
@@ -853,21 +962,38 @@ function normalizeMeaning(value) {
     .replace(/[.!?]+$/g, '');
 }
 
+function stripTemplateMarkers(value) {
+  return String(value).replace(/[~〜～]/g, '').trim();
+}
+
+function normalizeJapaneseWord(value) {
+  return normalizeReading(stripTemplateMarkers(value))
+    .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '');
+}
+
+function japaneseAnswerForms(entry) {
+  return [...new Set(
+    [...readingsFor(entry), wordFor(entry)]
+      .map(stripTemplateMarkers)
+      .filter(Boolean),
+  )];
+}
+
 function kanjiFromMatchedEntries(entries) {
   const entryKanji = entries.map((entry) => new Set(kanjiCharactersFor(entry)));
   return new Set(entryKanji.flatMap((kanji) => [...kanji]));
 }
 
-function filteredPoolTiles() {
-  const query = state.poolFilter.trim();
-  if (!query) return state.poolTiles;
+function filterKanjiTiles(filter, tiles = state.poolTiles) {
+  const query = String(filter).trim();
+  if (!query) return tiles;
 
   const queryCharacters = characters(query);
   const kanjiQuery = queryCharacters.length > 0 && queryCharacters.every(isKanjiCharacter);
 
   if (kanjiQuery) {
     const requested = new Set(queryCharacters);
-    return state.poolTiles.filter((tile) => requested.has(tile.kanji));
+    return tiles.filter((tile) => requested.has(tile.kanji));
   }
 
   const normalizedWritten = query.normalize('NFKC').toLowerCase();
@@ -879,7 +1005,7 @@ function filteredPoolTiles() {
   const partialEntryMatches = [];
 
   if (normalizedRomaji.length > 0) {
-    for (const tile of state.poolTiles) {
+    for (const tile of tiles) {
       const readings = state.kanjiReadings.get(tile.kanji);
       if (!readings) continue;
 
@@ -914,7 +1040,111 @@ function filteredPoolTiles() {
       : exactEntryMatches.length > 0
         ? kanjiFromMatchedEntries(exactEntryMatches)
         : kanjiFromMatchedEntries(partialEntryMatches);
-  return state.poolTiles.filter((tile) => matchedKanji.has(tile.kanji));
+  return tiles.filter((tile) => matchedKanji.has(tile.kanji));
+}
+
+function filteredPoolTiles() {
+  return filterKanjiTiles(state.poolFilter);
+}
+
+function romajiToHiragana(value, { convertTrailingN = true } = {}) {
+  const input = String(value).normalize('NFKC').toLowerCase().replaceAll('’', "'");
+  let output = '';
+  let index = 0;
+
+  while (index < input.length) {
+    const current = input[index];
+    const next = input[index + 1] || '';
+
+    if (current === 'n') {
+      if (next === "'") {
+        output += 'ん';
+        index += 2;
+        continue;
+      }
+      if (!next) {
+        output += convertTrailingN ? 'ん' : 'n';
+        index += 1;
+        continue;
+      }
+      if (next === 'n' || (!/[aeiouy]/.test(next) && /[a-z]/.test(next))) {
+        output += 'ん';
+        index += 1;
+        continue;
+      }
+    }
+
+    if (current === next && /[bcdfghjklmpqrstvwxyz]/.test(current) && current !== 'n') {
+      output += 'っ';
+      index += 1;
+      continue;
+    }
+
+    let matched = false;
+    for (let length = 4; length >= 1; length -= 1) {
+      const sequence = input.slice(index, index + length);
+      const kana = ROMAJI_TO_HIRAGANA[sequence];
+      if (!kana) continue;
+      output += kana;
+      index += length;
+      matched = true;
+      break;
+    }
+
+    if (!matched) {
+      output += current;
+      index += 1;
+    }
+  }
+
+  return output;
+}
+
+function hiraganaToKatakana(value) {
+  return characters(value).map((character) => {
+    const codePoint = character.codePointAt(0);
+    return codePoint >= 0x3041 && codePoint <= 0x3096
+      ? String.fromCodePoint(codePoint + 0x60)
+      : character;
+  }).join('');
+}
+
+function shouldUseKatakana(entry) {
+  const reading = readingsFor(entry)[0] || '';
+  return /[ァ-ヶ]/.test(reading) && !/[ぁ-ゖ]/.test(reading);
+}
+
+function convertJapaneseTyping(entry, value, convertTrailingN = true) {
+  const hiragana = romajiToHiragana(value, { convertTrailingN });
+  return shouldUseKatakana(entry) ? hiraganaToKatakana(hiragana) : hiragana;
+}
+
+function convertJapaneseInput(entry, input, event) {
+  let value = input.value;
+  let start = input.selectionStart ?? value.length;
+  let end = input.selectionEnd ?? start;
+  const pendingIndex = Number(input.dataset.pendingTrailingN);
+  const extendsPendingN = Number.isInteger(pendingIndex)
+    && event.inputType === 'insertText'
+    && typeof event.data === 'string'
+    && event.data.length === 1
+    && value[pendingIndex] === 'ん'
+    && start === pendingIndex + 2;
+
+  if (extendsPendingN) {
+    value = `${value.slice(0, pendingIndex)}n${value.slice(pendingIndex + 1)}`;
+  }
+
+  delete input.dataset.pendingTrailingN;
+  const hasPendingTrailingN = start === value.length && /n$/i.test(value);
+  const convertedStart = convertJapaneseTyping(entry, value.slice(0, start)).length;
+  const convertedEnd = convertJapaneseTyping(entry, value.slice(0, end)).length;
+  input.value = convertJapaneseTyping(entry, value);
+  input.setSelectionRange(convertedStart, convertedEnd);
+
+  if (hasPendingTrailingN) {
+    input.dataset.pendingTrailingN = String(convertedStart - 1);
+  }
 }
 
 function isEntryAttempted(entry) {
@@ -951,6 +1181,17 @@ function isEntryCorrect(entry) {
   }
 
   const typed = state.answers.get(entry.id) || '';
+  if (state.mode === 'japanese') {
+    const normalizedJapanese = normalizeJapaneseWord(typed);
+    const matchesWritten = normalizedJapanese.length > 0
+      && normalizedJapanese === normalizeJapaneseWord(wordFor(entry));
+    const matchesReading = normalizedJapanese.length > 0
+      && readingsFor(entry).some((reading) => normalizeJapaneseWord(reading) === normalizedJapanese);
+    const normalizedRomaji = normalizeRomaji(typed);
+    const matchesRomaji = normalizedRomaji.length > 0
+      && romajiFor(entry).some((romaji) => normalizeRomaji(romaji) === normalizedRomaji);
+    return matchesWritten || matchesReading || matchesRomaji;
+  }
   if (state.mode === 'reading') {
     const normalizedKana = normalizeReading(typed);
     const normalizedRomaji = normalizeRomaji(typed);
@@ -966,7 +1207,7 @@ function isEntryCorrect(entry) {
 }
 
 function checkAnswers() {
-  if (state.mode === 'pool') {
+  if (isSingleWordMode()) {
     checkStudyWord();
     return;
   }
@@ -1015,10 +1256,21 @@ function checkStudyWord() {
     return;
   }
 
-  const answer = state.answers.get(entry.id) || [];
-  if (answer.some((value) => !value?.kanji)) {
+  let answer = state.answers.get(entry.id);
+  if (state.mode === 'japanese') {
+    const visibleInput = els.questionsPanel.querySelector('.typed-input');
+    answer = visibleInput?.value ?? answer;
+    answer = convertJapaneseTyping(entry, String(answer || ''), true);
+    state.answers.set(entry.id, answer);
+  }
+  const incomplete = state.mode === 'pool'
+    ? (answer || []).some((value) => !value?.kanji)
+    : String(answer || '').trim().length === 0;
+  if (incomplete) {
     els.status.className = 'status bad';
-    els.status.textContent = 'Fill every kanji slot before checking.';
+    els.status.textContent = state.mode === 'pool'
+      ? 'Fill every kanji slot before checking.'
+      : 'Write the Japanese word before checking.';
     return;
   }
 
@@ -1037,7 +1289,7 @@ function checkStudyWord() {
 }
 
 function skipStudyWord() {
-  if (state.mode !== 'pool' || state.checked) return;
+  if (!isSingleWordMode() || state.checked) return;
   const entry = currentStudyEntry();
   if (!entry) return;
 
@@ -1123,6 +1375,7 @@ els.backButton.addEventListener('click', () => {
   state.selectedTileId = null;
   state.skippedStudyEntryIds.clear();
   els.practiceScreen.classList.remove('pool-mode', 'typed-mode');
+  els.practiceScreen.classList.remove('japanese-mode');
   els.studyContext.classList.add('hidden');
   els.poolStudyActions.classList.add('hidden');
   els.checkButton.classList.remove('hidden');

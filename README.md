@@ -18,9 +18,10 @@ data/kanji-practice.json
 
 ## Practice modes
 
-1. **Meaning → Kanji** — fill only the kanji positions from a reusable pool. Kana and punctuation remain visible. For example, `食べる` displays a slot for `食` followed by fixed `べる`. The pool can be filtered by literal kanji, vocabulary reading, or individual kanji on/kun reading in romaji. Parentheses are ignored, so searches such as `taka(i)` match `高`. English meanings are intentionally not searchable because the meaning is already the test prompt.
-2. **Kanji → Reading** — type the reading in kana or generated romaji.
-3. **Kanji → Meaning** — type an accepted English meaning.
+1. **Kanji Spelling** — recall a vocabulary word’s kanji spelling from its meaning by filling only the kanji positions from a reusable pool. Kana and punctuation remain visible. For example, `食べる` displays a slot for `食` followed by fixed `べる`. The pool can be filtered by literal kanji, vocabulary reading, or individual kanji on/kun reading in romaji. Parentheses are ignored, so searches such as `taka(i)` match `高`. English meanings are intentionally not searchable because the meaning is already the test prompt.
+2. **Word → Japanese** — see an English meaning and recall the Japanese vocabulary word. Type romaji directly in the answer field to produce kana; kana and kanji answers are both accepted.
+3. **Kanji → Reading** — type the reading in kana or generated romaji.
+4. **Kanji → Meaning** — type an accepted English meaning.
 
 ## Test locally or on a phone
 
@@ -42,11 +43,11 @@ No build step or backend is required.
 
 Progress is stored in the browser on the current device with `localStorage` and is separate for each lesson and practice mode.
 
-Meaning → Kanji serves one randomly ordered ready/new vocabulary entry at a time in a continuous flow. Skipping defers a word without marking it wrong or changing its learning level. The pool always contains every unique kanji from the selected lesson in Japanese dictionary-style radical-and-stroke order; it is never reduced to answer-specific choices or shuffled. The ordering data comes from Unicode 17's `kRSUnicode` radical/residual-stroke values, with code point order used only to break ties.
+Kanji Spelling and Word → Japanese serve one randomly ordered ready/new vocabulary entry at a time in a continuous flow. Skipping defers a word without marking it wrong or changing its learning level. The pool always contains every unique kanji from the selected lesson in Japanese dictionary-style radical-and-stroke order; it is never reduced to answer-specific choices or shuffled. The ordering data comes from Unicode 17's `kRSUnicode` radical/residual-stroke values, with code point order used only to break ties.
 
 Individual kanji reading search uses Unicode 17 Unihan `kJapaneseOn` and `kJapaneseKun` data. The local search index covers all 731 kanji used by the app; `々` is handled as an iteration mark rather than a kanji with its own reading.
 
-The two typed modes show up to eight ready/new vocabulary entries at once in deterministic lesson order.
+The Kanji → Reading and Kanji → Meaning modes show up to eight ready/new vocabulary entries at once in deterministic lesson order.
 
 A correct answer moves a word through these review intervals:
 
