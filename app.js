@@ -331,6 +331,20 @@ function progressRecordFor(entryId) {
   return state.progress[progressRecordKey(entryId)] || null;
 }
 
+function reviewLevelLabel(entryId) {
+  const record = progressRecordFor(entryId);
+  if (!record) return 'New';
+
+  const level = Math.min(MASTERED_LEVEL, Math.max(0, Number(record.level || 0)));
+  return [
+    'Level 0',
+    'Level 1 · 10 min',
+    'Level 2 · 1 day',
+    'Level 3 · 3 days',
+    'Level 4 · 7 days',
+  ][level];
+}
+
 function loadStoredProgress() {
   try {
     const parsed = JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY) || '{}');
@@ -446,7 +460,7 @@ function renderProgress() {
       ? 'One word at a time. Progress is saved on this device.'
       : `${state.activeEntryIds.length} shown in lesson order. Progress is saved on this device.`;
   } else if (stats.nextDueAt) {
-    els.progressNote.textContent = `Nothing is due now. Next review ${formatNextReview(stats.nextDueAt)}.`;
+    els.progressNote.textContent = `Nothing is ready now. Next review ${formatNextReview(stats.nextDueAt)}.`;
   } else {
     els.progressNote.textContent = 'No vocabulary remains in this lesson and mode.';
   }
@@ -512,7 +526,7 @@ function renderStudyContext() {
   const started = stats.learning + stats.mastered;
   const startedPercent = stats.total ? (started / stats.total) * 100 : 0;
   const masteredPercent = stats.total ? (stats.mastered / stats.total) * 100 : 0;
-  els.studyCounter.textContent = stats.due > 0 ? `${stats.due} due` : 'All caught up';
+  els.studyCounter.textContent = stats.due > 0 ? `${stats.due} ready now` : 'All caught up';
   els.studyMastered.textContent = `${stats.mastered} / ${stats.total} mastered`;
   els.studyStartedBar.style.width = `${startedPercent}%`;
   els.studyProgressBar.style.width = `${masteredPercent}%`;
@@ -537,7 +551,7 @@ function renderQuestions() {
     empty.className = 'panel empty-questions';
     const stats = progressStats();
     empty.textContent = stats.nextDueAt
-      ? `Nothing is due now. Next review ${formatNextReview(stats.nextDueAt)}.`
+      ? `Nothing is ready now. Next review ${formatNextReview(stats.nextDueAt)}.`
       : 'No vocabulary remains in this lesson and mode.';
     els.questionsPanel.append(empty);
     els.checkButton.disabled = true;
@@ -555,6 +569,7 @@ function renderQuestions() {
     const fragment = els.questionTemplate.content.cloneNode(true);
     const card = fragment.querySelector('.question-card');
     const promptLabel = fragment.querySelector('.prompt-label');
+    const wordLevel = fragment.querySelector('.word-level');
     const prompt = fragment.querySelector('.prompt-text');
     const slots = fragment.querySelector('.slots');
     const typedAnswer = fragment.querySelector('.typed-answer');
@@ -567,6 +582,8 @@ function renderQuestions() {
 
     if (state.mode === 'pool') {
       promptLabel.textContent = 'Meaning';
+      wordLevel.textContent = reviewLevelLabel(entry.id);
+      wordLevel.classList.remove('hidden');
       prompt.textContent = primaryMeaningFor(entry);
       slots.classList.remove('hidden');
       renderSlots(entry, slots);
@@ -984,7 +1001,7 @@ function checkAnswers() {
   renderProgress();
 
   els.status.className = `status ${correctCount === attemptedEntries.length ? 'good' : 'bad'}`;
-  els.status.textContent = `${correctCount} of ${attemptedEntries.length} attempted answers correct. Press Continue to load what is due next.`;
+  els.status.textContent = `${correctCount} of ${attemptedEntries.length} attempted answers correct. Press Continue to load what is ready next.`;
 }
 
 function checkStudyWord() {

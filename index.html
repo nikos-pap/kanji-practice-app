@@ -8,7 +8,7 @@
   <meta name="description" content="Genki 3rd Edition chapter vocabulary practice." />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./styles.css?v=ios-search-focus-20260713" />
+  <link rel="stylesheet" href="./styles.css?v=word-level-corner2-20260713" />
   <title>Genki Kanji Practice</title>
 </head>
 <body>
@@ -56,12 +56,12 @@
 
       <section id="progressPanel" class="panel progress-panel" aria-label="Learning progress">
         <div class="progress-stats">
-          <div class="progress-stat"><span>Mastered</span><strong id="progressMastered">0 / 0</strong></div>
+          <div class="progress-stat"><span>7-day level</span><strong id="progressMastered">0 / 0</strong></div>
           <div class="progress-stat"><span>Learning</span><strong id="progressLearning">0</strong></div>
           <div class="progress-stat"><span>New</span><strong id="progressNew">0</strong></div>
-          <div class="progress-stat"><span>Due now</span><strong id="progressDue">0</strong></div>
+          <div class="progress-stat"><span>Ready now</span><strong id="progressDue">0</strong></div>
         </div>
-        <div class="progress-track" role="progressbar" aria-label="Mastered vocabulary" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress-track" role="progressbar" aria-label="Vocabulary at the 7-day review level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
           <div id="progressStartedBar" class="progress-fill started"></div>
           <div id="progressMasteredBar" class="progress-fill mastered"></div>
         </div>
@@ -75,7 +75,7 @@
           <div id="statusMessage" class="status hidden" aria-live="polite"></div>
           <div id="studyContext" class="study-context hidden" aria-live="polite">
             <div class="study-progress-copy">
-              <strong id="studyCounter">Words due</strong>
+              <strong id="studyCounter">Ready now</strong>
               <span id="studyMastered">0 mastered</span>
             </div>
             <div id="studyProgressTrack" class="study-progress-track" role="progressbar" aria-label="Vocabulary learning progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
@@ -120,8 +120,11 @@
   <template id="questionTemplate">
     <article class="question-card">
       <div class="prompt-block">
-        <span class="prompt-label">Prompt</span>
+        <div class="prompt-meta">
+          <span class="prompt-label">Prompt</span>
+        </div>
         <h2 class="prompt-text"></h2>
+        <span class="word-level hidden"></span>
       </div>
       <div class="answer-area">
         <div class="slots hidden" aria-label="Answer slots"></div>
@@ -134,6 +137,6 @@
     </article>
   </template>
 
-  <script type="module" src="./app.js?v=reading-search-20260713"></script>
+  <script type="module" src="./app.js?v=word-level-position-20260713"></script>
 </body>
 </html>

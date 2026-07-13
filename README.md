@@ -42,20 +42,20 @@ No build step or backend is required.
 
 Progress is stored in the browser on the current device with `localStorage` and is separate for each lesson and practice mode.
 
-Meaning → Kanji serves one randomly ordered due/new vocabulary entry at a time in a continuous flow. Skipping defers a word without marking it wrong or changing its learning level. The pool always contains every unique kanji from the selected lesson in Japanese dictionary-style radical-and-stroke order; it is never reduced to answer-specific choices or shuffled. The ordering data comes from Unicode 17's `kRSUnicode` radical/residual-stroke values, with code point order used only to break ties.
+Meaning → Kanji serves one randomly ordered ready/new vocabulary entry at a time in a continuous flow. Skipping defers a word without marking it wrong or changing its learning level. The pool always contains every unique kanji from the selected lesson in Japanese dictionary-style radical-and-stroke order; it is never reduced to answer-specific choices or shuffled. The ordering data comes from Unicode 17's `kRSUnicode` radical/residual-stroke values, with code point order used only to break ties.
 
 Individual kanji reading search uses Unicode 17 Unihan `kJapaneseOn` and `kJapaneseKun` data. The local search index covers all 731 kanji used by the app; `々` is handled as an iteration mark rather than a kanji with its own reading.
 
-The two typed modes show up to eight due/new vocabulary entries at once in deterministic lesson order.
+The two typed modes show up to eight ready/new vocabulary entries at once in deterministic lesson order.
 
 A correct answer moves a word through these review intervals:
 
 1. 10 minutes
 2. 1 day
 3. 3 days
-4. 7 days (`Mastered`)
+4. 7 days (`7-day level`)
 
-A wrong answer remains due and moves back one learning level. Unanswered rows are not counted when checking.
+A wrong answer becomes ready immediately and moves back one learning level. Unanswered rows are not counted when checking.
 
 Use **Clear this lesson/mode** to reset only the open lesson and mode, or **Clear all progress** to remove all locally saved learning progress.
 

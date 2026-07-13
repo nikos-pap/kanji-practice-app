@@ -42,7 +42,7 @@ button { color: inherit; touch-action: manipulation; }
   margin-bottom: 1.25rem;
 }
 
-.topbar > div { text-align: center; }
+.topbar > div { grid-column: 2; text-align: center; }
 .topbar h1 { margin: 0; font-size: clamp(1.65rem, 4vw, 2.4rem); }
 .topbar p { margin: .35rem 0 0; color: var(--muted); }
 #backButton { justify-self: start; }
@@ -261,6 +261,7 @@ select:focus, input:focus { outline: 2px solid rgba(124,156,255,.45); border-col
 .study-progress-bar.mastered { background: linear-gradient(90deg, #34d399, #6ee7b7); }
 
 .question-card {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(150px, .72fr) minmax(260px, 1.28fr);
   gap: 1rem;
@@ -268,7 +269,26 @@ select:focus, input:focus { outline: 2px solid rgba(124,156,255,.45); border-col
   padding: .9rem 1rem;
   scroll-margin-block: 5rem calc(var(--pool-tray-height) + 1rem);
 }
+.prompt-meta { display: flex; align-items: center; gap: .45rem; }
 .prompt-label { display: block; color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; }
+.word-level {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.35rem;
+  padding: .1rem .52rem;
+  border: 0;
+  border-bottom: 1px solid #34435d;
+  border-left: 1px solid #34435d;
+  border-radius: 0 17px 0 10px;
+  background: #182235;
+  color: #b8c4da;
+  font-size: .67rem;
+  line-height: 1;
+  white-space: nowrap;
+}
 .prompt-text { margin: .25rem 0 0; font-size: 1.2rem; }
 .slots { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
 .fixed-text { white-space: pre-wrap; font-size: 1.55rem; line-height: 1.25; }
@@ -799,12 +819,12 @@ code { color: #c7d2fe; }
   #practiceScreen.pool-mode .study-progress-track { height: .35rem; }
 
   #practiceScreen.pool-mode .question-card {
-    min-height: 104px;
+    min-height: 118px;
     grid-template-columns: minmax(7rem, 1fr) auto;
     justify-items: stretch;
     align-content: center;
     gap: .55rem;
-    padding: .65rem .75rem;
+    padding: 1.55rem .75rem .65rem;
     text-align: left;
     box-shadow: none;
   }
@@ -896,7 +916,7 @@ code { color: #c7d2fe; }
 }
 
 @media (max-width: 480px) {
-  #practiceScreen.pool-mode .question-card { min-height: 98px; }
+  #practiceScreen.pool-mode .question-card { min-height: 116px; }
   #practiceScreen.pool-mode .prompt-text { font-size: 1rem; }
   #practiceScreen.pool-mode .kanji-pool {
     grid-template-columns: repeat(auto-fill, minmax(2.4rem, 1fr));
