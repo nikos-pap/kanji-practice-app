@@ -8,7 +8,7 @@
   <meta name="description" content="Genki 3rd Edition chapter vocabulary practice." />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./styles.css?v=simple-japanese-20260713" />
+  <link rel="stylesheet" href="./styles.css?v=test-summary-20260716" />
   <title>Genki Kanji Practice</title>
 </head>
 <body>
@@ -46,8 +46,8 @@
           <details class="progress-clear-menu">
             <summary aria-label="Practice options">Options</summary>
             <div class="progress-actions">
-              <button id="clearCurrentProgress" class="button ghost danger" type="button">Clear this lesson/mode</button>
-              <button id="clearAllProgress" class="button ghost danger" type="button">Clear all progress</button>
+              <button id="clearCurrentProgress" class="button ghost danger" type="button">Clear this lesson/mode statistics</button>
+              <button id="clearAllProgress" class="button ghost danger" type="button">Clear all statistics</button>
             </div>
           </details>
           <button id="checkButton" class="button primary" type="button">Check answers</button>
@@ -75,17 +75,16 @@
           <div id="statusMessage" class="status hidden" aria-live="polite"></div>
           <div id="studyContext" class="study-context hidden" aria-live="polite">
             <div class="study-progress-copy">
-              <strong id="studyCounter">Ready now</strong>
-              <span id="studyMastered">0 mastered</span>
+              <strong id="studyCounter">0 / 0 completed</strong>
             </div>
-            <div id="studyProgressTrack" class="study-progress-track" role="progressbar" aria-label="Vocabulary learning progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-              <div id="studyStartedBar" class="study-progress-bar started"></div>
-              <div id="studyProgressBar" class="study-progress-bar mastered"></div>
+            <div id="studyProgressTrack" class="study-progress-track" role="progressbar" aria-label="Current test completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div id="studyProgressBar" class="study-progress-bar completed"></div>
             </div>
           </div>
           <section id="questionsPanel" class="questions"></section>
           <div id="poolStudyActions" class="pool-study-actions hidden">
             <button id="skipButton" class="button ghost" type="button">Skip</button>
+            <button id="dontKnowButton" class="button ghost" type="button">I don’t know</button>
             <button id="poolCheckButton" class="button primary" type="button">Check word</button>
           </div>
         </div>
@@ -125,7 +124,6 @@
           <span class="prompt-label">Prompt</span>
         </div>
         <h2 class="prompt-text"></h2>
-        <span class="word-level hidden"></span>
       </div>
       <div class="answer-area">
         <div class="slots hidden" aria-label="Answer slots"></div>
@@ -138,6 +136,6 @@
     </article>
   </template>
 
-  <script type="module" src="./app.js?v=disable-unfinished-modes-20260713"></script>
+  <script type="module" src="./app.js?v=desktop-answer-focus-20260716"></script>
 </body>
 </html>

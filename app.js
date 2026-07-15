@@ -3,10 +3,8 @@ const KANJI_READINGS_URL = './data/kanji-readings.txt';
 const MODE_IDS = ['pool', 'japanese', 'reading', 'meaning'];
 const DISABLED_MODE_IDS = new Set(['reading', 'meaning']);
 const KANJI_PATTERN = /[\u3400-\u4DBF\u4E00-\u9FFF々〆ヵヶ]/u;
-const PROGRESS_STORAGE_KEY = 'genki-kanji-progress-v1';
+const STATS_STORAGE_KEY = 'genki-kanji-stats-v2';
 const ACTIVE_ENTRY_LIMIT = 8;
-const MASTERED_LEVEL = 4;
-const REVIEW_INTERVALS_MS = [0, 10 * 60 * 1000, 24 * 60 * 60 * 1000, 3 * 24 * 60 * 60 * 1000, 7 * 24 * 60 * 60 * 1000];
 const SINGLE_WORD_MODES = new Set(['pool', 'japanese']);
 const ROMAJI_TO_HIRAGANA = {
   a: 'あ', i: 'い', u: 'う', e: 'え', o: 'お',
@@ -74,7 +72,12 @@ const state = {
   activeSlot: null,
   checked: false,
   poolFilter: '',
-  progress: {},
+  stats: { words: {}, tests: [] },
+  run: null,
+  studyAttempts: new Map(),
+  lastSubmittedAnswers: new Map(),
+  incorrectEntryId: null,
+  revealedEntryId: null,
   activeEntryIds: [],
   lastStudyEntryId: null,
   skippedStudyEntryIds: new Set(),
@@ -94,15 +97,14 @@ const els = {
   resetButton: document.querySelector('#resetButton'),
   setSelect: document.querySelector('#setSelect'),
   skipButton: document.querySelector('#skipButton'),
+  dontKnowButton: document.querySelector('#dontKnowButton'),
   checkButton: document.querySelector('#checkButton'),
   poolCheckButton: document.querySelector('#poolCheckButton'),
   poolStudyActions: document.querySelector('#poolStudyActions'),
   questionsPanel: document.querySelector('#questionsPanel'),
   studyContext: document.querySelector('#studyContext'),
   studyCounter: document.querySelector('#studyCounter'),
-  studyMastered: document.querySelector('#studyMastered'),
   studyProgressTrack: document.querySelector('#studyProgressTrack'),
-  studyStartedBar: document.querySelector('#studyStartedBar'),
   studyProgressBar: document.querySelector('#studyProgressBar'),
   poolPanel: document.querySelector('#poolPanel'),
   poolHint: document.querySelector('#poolHint'),
@@ -259,7 +261,7 @@ async function loadData() {
     state.data = data;
     state.kanjiReadings = parseKanjiReadings(readingsText);
     if (state.kanjiReadings.size === 0) throw new Error('The kanji reading index is empty.');
-    state.progress = loadStoredProgress();
+    state.stats = loadStoredStats();
     state.setId = data.practiceSets[0].id;
     els.appTitle.textContent = data.app?.title || 'Kanji Practice';
     renderModeScreen();
@@ -372,8 +374,7 @@ function openMode(mode) {
   state.poolFilter = '';
   els.poolFilter.value = '';
   populateSetSelect();
-  selectActiveEntries();
-  resetPractice();
+  beginRun();
 
   const subtitles = {
     pool: 'Recall the kanji spelling of the word shown by its meaning.',
@@ -406,147 +407,82 @@ function currentEntries() {
   return allEntries().filter((entry) => activeIds.has(entry.id));
 }
 
-function progressRecordKey(entryId, setId = state.setId, mode = state.mode) {
+function statsRecordKey(entryId, setId = state.setId, mode = state.mode) {
   return `${setId}|${mode}|${entryId}`;
 }
 
-function progressRecordFor(entryId) {
-  return state.progress[progressRecordKey(entryId)] || null;
-}
-
-function reviewLevelLabel(entryId) {
-  const record = progressRecordFor(entryId);
-  if (!record) return 'New';
-
-  const level = Math.min(MASTERED_LEVEL, Math.max(0, Number(record.level || 0)));
-  return [
-    'Level 0',
-    'Level 1 · 10 min',
-    'Level 2 · 1 day',
-    'Level 3 · 3 days',
-    'Level 4 · 7 days',
-  ][level];
-}
-
-function loadStoredProgress() {
+function loadStoredStats() {
   try {
-    const parsed = JSON.parse(localStorage.getItem(PROGRESS_STORAGE_KEY) || '{}');
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    const parsed = JSON.parse(localStorage.getItem(STATS_STORAGE_KEY) || '{}');
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Invalid statistics');
+    return {
+      words: parsed.words && typeof parsed.words === 'object' && !Array.isArray(parsed.words) ? parsed.words : {},
+      tests: Array.isArray(parsed.tests) ? parsed.tests : [],
+    };
   } catch {
-    return {};
+    return { words: {}, tests: [] };
   }
 }
 
-function saveStoredProgress() {
+function saveStoredStats() {
   try {
-    localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(state.progress));
+    localStorage.setItem(STATS_STORAGE_KEY, JSON.stringify(state.stats));
   } catch {
-    // Practice still works when storage is unavailable; only persistence is lost.
+    // Practice still works when storage is unavailable; only statistics are lost.
   }
 }
 
 function selectActiveEntries() {
-  const now = Date.now();
-  const entries = allEntries();
-  const dueReviewed = [];
-  const newEntries = [];
-
-  entries.forEach((entry, sourceIndex) => {
-    const record = progressRecordFor(entry.id);
-    if (!record) {
-      newEntries.push({ entry, sourceIndex });
-      return;
-    }
-    if (Number(record.dueAt || 0) <= now) {
-      dueReviewed.push({ entry, sourceIndex, dueAt: Number(record.dueAt || 0) });
-    }
-  });
-
-  dueReviewed.sort((a, b) => a.dueAt - b.dueAt || a.sourceIndex - b.sourceIndex);
-  const orderedCandidates = [...dueReviewed, ...newEntries];
-  const candidates = isSingleWordMode() ? shuffle(orderedCandidates) : orderedCandidates;
-  let selected;
-
   if (isSingleWordMode()) {
-    let available = candidates.filter(({ entry }) => (
-      entry.id !== state.lastStudyEntryId && !state.skippedStudyEntryIds.has(entry.id)
-    ));
-    if (available.length === 0) {
-      available = candidates.filter(({ entry }) => !state.skippedStudyEntryIds.has(entry.id));
-    }
-    if (available.length === 0 && candidates.length > 0) {
-      state.skippedStudyEntryIds.clear();
-      available = candidates.filter(({ entry }) => entry.id !== state.lastStudyEntryId);
-    }
-    selected = [available[0] || candidates[0]].filter(Boolean);
-  } else {
-    selected = candidates.slice(0, ACTIVE_ENTRY_LIMIT);
+    state.activeEntryIds = state.run?.queue.length ? [state.run.queue[0]] : [];
+    return;
   }
-  state.activeEntryIds = selected.map(({ entry }) => entry.id);
+  state.activeEntryIds = allEntries().slice(0, ACTIVE_ENTRY_LIMIT).map((entry) => entry.id);
+}
+
+function beginRun() {
+  const entries = allEntries();
+  state.run = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    startedAt: Date.now(),
+    queue: shuffle(entries.map((entry) => entry.id)),
+    completed: new Set(),
+    results: [],
+    saved: false,
+    summaryVisible: false,
+  };
+  els.practiceScreen.classList.remove('run-summary');
+  els.skipButton.classList.remove('hidden');
+  els.dontKnowButton.classList.remove('hidden');
+  document.body.classList.toggle('pool-practice', state.mode === 'pool');
+  state.studyAttempts.clear();
+  state.lastSubmittedAnswers.clear();
+  state.incorrectEntryId = null;
+  state.revealedEntryId = null;
+  state.lastStudyEntryId = null;
+  state.skippedStudyEntryIds.clear();
+  selectActiveEntries();
+  resetPractice();
 }
 
 function progressStats() {
-  const now = Date.now();
-  let newCount = 0;
-  let learning = 0;
-  let mastered = 0;
-  let due = 0;
-  let nextDueAt = null;
-
-  for (const entry of allEntries()) {
-    const record = progressRecordFor(entry.id);
-    if (!record) {
-      newCount += 1;
-      due += 1;
-      continue;
-    }
-
-    if (Number(record.level || 0) >= MASTERED_LEVEL) mastered += 1;
-    else learning += 1;
-
-    const dueAt = Number(record.dueAt || 0);
-    if (dueAt <= now) due += 1;
-    else if (nextDueAt === null || dueAt < nextDueAt) nextDueAt = dueAt;
-  }
-
-  return { total: allEntries().length, newCount, learning, mastered, due, nextDueAt };
-}
-
-function formatNextReview(timestamp) {
-  if (!timestamp) return '';
-  const milliseconds = Math.max(0, timestamp - Date.now());
-  const minutes = Math.ceil(milliseconds / 60000);
-  if (minutes < 60) return `in ${minutes} minute${minutes === 1 ? '' : 's'}`;
-  const hours = Math.ceil(minutes / 60);
-  if (hours < 48) return `in ${hours} hour${hours === 1 ? '' : 's'}`;
-  const days = Math.ceil(hours / 24);
-  return `in ${days} day${days === 1 ? '' : 's'}`;
+  const total = allEntries().length;
+  const completed = state.run?.completed.size || 0;
+  return { total, completed, remaining: Math.max(0, total - completed) };
 }
 
 function renderProgress() {
   if (!state.mode) return;
   const stats = progressStats();
-  const started = stats.learning + stats.mastered;
-  const startedPercent = stats.total ? (started / stats.total) * 100 : 0;
-  const masteredPercent = stats.total ? (stats.mastered / stats.total) * 100 : 0;
-
-  els.progressMastered.textContent = `${stats.mastered} / ${stats.total}`;
-  els.progressLearning.textContent = String(stats.learning);
-  els.progressNew.textContent = String(stats.newCount);
-  els.progressDue.textContent = String(stats.due);
-  els.progressStartedBar.style.width = `${startedPercent}%`;
-  els.progressMasteredBar.style.width = `${masteredPercent}%`;
-  els.progressTrack.setAttribute('aria-valuenow', String(Math.round(masteredPercent)));
-
-  if (state.activeEntryIds.length > 0) {
-    els.progressNote.textContent = isSingleWordMode()
-      ? 'One word at a time. Progress is saved on this device.'
-      : `${state.activeEntryIds.length} shown in lesson order. Progress is saved on this device.`;
-  } else if (stats.nextDueAt) {
-    els.progressNote.textContent = `Nothing is ready now. Next review ${formatNextReview(stats.nextDueAt)}.`;
-  } else {
-    els.progressNote.textContent = 'No vocabulary remains in this lesson and mode.';
-  }
+  const completedPercent = stats.total ? (stats.completed / stats.total) * 100 : 0;
+  els.progressMastered.textContent = `${stats.completed} / ${stats.total}`;
+  els.progressLearning.textContent = '—';
+  els.progressNew.textContent = '—';
+  els.progressDue.textContent = String(stats.remaining);
+  els.progressStartedBar.style.width = `${completedPercent}%`;
+  els.progressMasteredBar.style.width = '0%';
+  els.progressTrack.setAttribute('aria-valuenow', String(Math.round(completedPercent)));
+  els.progressNote.textContent = `${stats.completed} of ${stats.total} completed in this test.`;
 }
 
 function populateSetSelect() {
@@ -565,7 +501,10 @@ function resetPractice({ preservePool = false } = {}) {
   state.selectedTileId = null;
   state.activeSlot = null;
   state.checked = false;
+  state.incorrectEntryId = null;
+  state.revealedEntryId = null;
   els.skipButton.disabled = false;
+  els.dontKnowButton.disabled = false;
   els.checkButton.textContent = 'Check answers';
   els.poolCheckButton.textContent = 'Check word';
   hideStatus();
@@ -606,14 +545,10 @@ function activateFirstEmptyStudySlot() {
 function renderStudyContext() {
   if (!isSingleWordMode()) return;
   const stats = progressStats();
-  const started = stats.learning + stats.mastered;
-  const startedPercent = stats.total ? (started / stats.total) * 100 : 0;
-  const masteredPercent = stats.total ? (stats.mastered / stats.total) * 100 : 0;
-  els.studyCounter.textContent = stats.due > 0 ? `${stats.due} ready now` : 'All caught up';
-  els.studyMastered.textContent = `${stats.mastered} / ${stats.total} mastered`;
-  els.studyStartedBar.style.width = `${startedPercent}%`;
-  els.studyProgressBar.style.width = `${masteredPercent}%`;
-  els.studyProgressTrack.setAttribute('aria-valuenow', String(Math.round(startedPercent)));
+  const completedPercent = stats.total ? (stats.completed / stats.total) * 100 : 0;
+  els.studyCounter.textContent = `${stats.completed} / ${stats.total} completed`;
+  els.studyProgressBar.style.width = `${completedPercent}%`;
+  els.studyProgressTrack.setAttribute('aria-valuenow', String(Math.round(completedPercent)));
 }
 
 function createPool() {
@@ -629,17 +564,24 @@ function renderQuestions() {
   els.questionsPanel.replaceChildren();
   renderStudyContext();
 
+  if (state.run?.summaryVisible) {
+    renderRunSummary();
+    els.checkButton.disabled = true;
+    els.poolCheckButton.disabled = false;
+    els.skipButton.disabled = true;
+    els.dontKnowButton.disabled = true;
+    return;
+  }
+
   if (currentEntries().length === 0) {
     const empty = document.createElement('div');
     empty.className = 'panel empty-questions';
-    const stats = progressStats();
-    empty.textContent = stats.nextDueAt
-      ? `Nothing is ready now. Next review ${formatNextReview(stats.nextDueAt)}.`
-      : 'No vocabulary remains in this lesson and mode.';
+    empty.textContent = 'Test complete.';
     els.questionsPanel.append(empty);
     els.checkButton.disabled = true;
     els.poolCheckButton.disabled = true;
     els.skipButton.disabled = true;
+    els.dontKnowButton.disabled = true;
     return;
   }
 
@@ -652,7 +594,6 @@ function renderQuestions() {
     const fragment = els.questionTemplate.content.cloneNode(true);
     const card = fragment.querySelector('.question-card');
     const promptLabel = fragment.querySelector('.prompt-label');
-    const wordLevel = fragment.querySelector('.word-level');
     const prompt = fragment.querySelector('.prompt-text');
     const slots = fragment.querySelector('.slots');
     const typedAnswer = fragment.querySelector('.typed-answer');
@@ -665,8 +606,6 @@ function renderQuestions() {
 
     if (state.mode === 'pool') {
       promptLabel.textContent = 'Meaning';
-      wordLevel.textContent = reviewLevelLabel(entry.id);
-      wordLevel.classList.remove('hidden');
       prompt.textContent = primaryMeaningFor(entry);
       slots.classList.remove('hidden');
       renderSlots(entry, slots);
@@ -675,10 +614,6 @@ function renderQuestions() {
       promptLabel.textContent = writesJapanese ? 'Meaning' : 'Written word';
       prompt.textContent = writesJapanese ? primaryMeaningFor(entry) : wordFor(entry);
       prompt.lang = writesJapanese ? 'en' : 'ja';
-      if (writesJapanese) {
-        wordLevel.textContent = reviewLevelLabel(entry.id);
-        wordLevel.classList.remove('hidden');
-      }
       typedAnswer.classList.remove('hidden');
       typedLabel.textContent = writesJapanese
         ? 'Japanese word (kana or kanji)'
@@ -710,9 +645,114 @@ function renderQuestions() {
       }
     }
 
-    if (state.checked) renderResult(entry, card, result);
+    if (state.checked || state.incorrectEntryId === entry.id) renderResult(entry, card, result);
     els.questionsPanel.append(fragment);
   }
+
+  focusJapaneseAnswerOnDesktop();
+}
+
+function focusJapaneseAnswerOnDesktop() {
+  if (
+    state.mode !== 'japanese'
+    || state.checked
+    || state.run?.summaryVisible
+    || !window.matchMedia('(min-width: 901px)').matches
+  ) return;
+
+  requestAnimationFrame(() => {
+    const input = els.questionsPanel.querySelector('.typed-input:not(:disabled)');
+    input?.focus({ preventScroll: true });
+  });
+}
+
+function renderRunSummary() {
+  const results = state.run?.results || [];
+  const total = results.length;
+  const firstTry = results.filter((result) => result.attempts === 1).length;
+  const retryResults = results.filter((result) => result.attempts > 1);
+  const failedAttempts = results.reduce((sum, result) => sum + Math.max(0, result.attempts - 1), 0);
+
+  const summary = document.createElement('section');
+  summary.className = 'panel test-summary';
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Test complete';
+  summary.append(heading);
+
+  const completed = document.createElement('p');
+  completed.className = 'test-summary-completed';
+  completed.textContent = `You completed all ${total} words.`;
+  summary.append(completed);
+
+  const metrics = document.createElement('dl');
+  metrics.className = 'test-summary-metrics';
+  for (const [label, value] of [
+    ['Correct on first attempt', `${firstTry} / ${total}`],
+    ['Needed more attempts', String(retryResults.length)],
+    ['Failed attempts', String(failedAttempts)],
+  ]) {
+    const metric = document.createElement('div');
+    const term = document.createElement('dt');
+    const result = document.createElement('dd');
+    term.textContent = label;
+    result.textContent = value;
+    metric.append(term, result);
+    metrics.append(metric);
+  }
+  summary.append(metrics);
+
+  if (retryResults.length > 0) {
+    const details = document.createElement('details');
+    details.className = 'test-summary-review';
+    const detailsHeading = document.createElement('summary');
+    detailsHeading.textContent = `Words that needed more attempts (${retryResults.length})`;
+    details.append(detailsHeading);
+
+    const list = document.createElement('ul');
+    const entriesById = new Map(allEntries().map((entry) => [entry.id, entry]));
+    for (const runResult of [...retryResults].sort((left, right) => right.attempts - left.attempts)) {
+      const entry = entriesById.get(runResult.entryId);
+      if (!entry) continue;
+      const item = document.createElement('li');
+      const word = state.mode === 'japanese'
+        ? japaneseAnswerForms(entry).join(' / ')
+        : wordFor(entry);
+      const wordDetails = document.createElement('span');
+      const meaning = document.createElement('strong');
+      const writtenWord = document.createElement('span');
+      const attempts = document.createElement('span');
+      meaning.textContent = primaryMeaningFor(entry);
+      writtenWord.textContent = word;
+      writtenWord.lang = 'ja';
+      attempts.textContent = `${runResult.attempts} attempts`;
+      wordDetails.append(meaning, writtenWord);
+      item.append(wordDetails, attempts);
+      list.append(item);
+    }
+    details.append(list);
+    summary.append(details);
+  }
+
+  els.questionsPanel.append(summary);
+}
+
+function showRunSummary() {
+  if (!state.run || state.run.queue.length > 0) return;
+  state.run.summaryVisible = true;
+  state.activeEntryIds = [];
+  state.checked = false;
+  state.incorrectEntryId = null;
+  state.revealedEntryId = null;
+  els.practiceScreen.classList.add('run-summary');
+  els.skipButton.classList.add('hidden');
+  els.dontKnowButton.classList.add('hidden');
+  els.poolCheckButton.textContent = 'Start again';
+  document.body.classList.remove('pool-practice');
+  renderQuestions();
+  renderProgress();
+  hideStatus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function renderSlots(entry, slots) {
@@ -746,7 +786,7 @@ function renderSlots(entry, slots) {
     slot.classList.toggle('active', isActive);
     slot.setAttribute('aria-pressed', String(isActive));
 
-    if (state.checked && isEntryAttempted(entry)) {
+    if ((state.checked || state.incorrectEntryId === entry.id) && isEntryAttempted(entry)) {
       slot.classList.add(slot.textContent === segment.expected ? 'correct' : 'incorrect');
     }
     slot.disabled = state.checked;
@@ -763,11 +803,12 @@ function renderSlots(entry, slots) {
 }
 
 function renderResult(entry, card, result) {
-  if (!isEntryAttempted(entry)) return;
+  const revealed = state.revealedEntryId === entry.id;
+  if (!revealed && !isEntryAttempted(entry)) return;
   const correct = isEntryCorrect(entry);
-  card.classList.add(correct ? 'answer-correct' : 'answer-incorrect');
+  card.classList.add(correct && !revealed ? 'answer-correct' : 'answer-incorrect');
 
-  if (correct) {
+  if (correct && !revealed) {
     if (state.mode === 'pool') result.textContent = 'Correct — nice recall.';
     else if (state.mode === 'japanese') result.textContent = `Correct — ${stripTemplateMarkers(wordFor(entry))}`;
     else result.textContent = 'Correct';
@@ -775,8 +816,14 @@ function renderResult(entry, card, result) {
     return;
   }
 
+  if (!revealed) {
+    result.textContent = 'Not quite — try again.';
+    result.classList.add('bad');
+    return;
+  }
+
   if (state.mode === 'pool') {
-    result.textContent = `Correct answer: ${wordFor(entry)}`;
+    result.textContent = `Answer: ${wordFor(entry)}`;
   } else if (state.mode === 'japanese') {
     result.textContent = `Answer: ${japaneseAnswerForms(entry).join(' / ')}`;
   } else if (state.mode === 'reading') {
@@ -1155,22 +1202,56 @@ function isEntryAttempted(entry) {
   return String(state.answers.get(entry.id) || '').trim().length > 0;
 }
 
-function reviewEntry(entry, correct) {
-  const key = progressRecordKey(entry.id);
-  const previous = state.progress[key] || { level: 0, correct: 0, wrong: 0 };
-  const now = Date.now();
-  const previousLevel = Number(previous.level || 0);
-  const level = correct
-    ? Math.min(MASTERED_LEVEL, previousLevel + 1)
-    : Math.max(0, previousLevel - 1);
-
-  state.progress[key] = {
-    level,
-    dueAt: correct ? now + REVIEW_INTERVALS_MS[level] : now,
-    correct: Number(previous.correct || 0) + (correct ? 1 : 0),
-    wrong: Number(previous.wrong || 0) + (correct ? 0 : 1),
-    lastReviewedAt: now,
+function recordStudyResult(entry, result, attempts, score) {
+  const completedAt = Date.now();
+  const record = {
+    testId: state.run.id,
+    result,
+    attempts,
+    score,
+    completedAt,
   };
+
+  state.run.results.push({ entryId: entry.id, ...record });
+  state.run.completed.add(entry.id);
+  state.run.queue = state.run.queue.filter((entryId) => entryId !== entry.id);
+
+  if (state.run.queue.length === 0 && !state.run.saved) {
+    for (const runResult of state.run.results) {
+      const { entryId, ...wordResult } = runResult;
+      const wordKey = statsRecordKey(entryId);
+      const wordHistory = Array.isArray(state.stats.words[wordKey]) ? state.stats.words[wordKey] : [];
+      wordHistory.push(wordResult);
+      state.stats.words[wordKey] = wordHistory;
+    }
+
+    state.stats.tests.push({
+      id: state.run.id,
+      setId: state.setId,
+      mode: state.mode,
+      startedAt: state.run.startedAt,
+      completedAt,
+      results: state.run.results.map((item) => ({ ...item })),
+    });
+    state.run.saved = true;
+    saveStoredStats();
+  }
+}
+
+function completeStudyWord(entry, result, attempts, score) {
+  recordStudyResult(entry, result, attempts, score);
+  state.checked = true;
+  state.incorrectEntryId = null;
+  state.revealedEntryId = null;
+  state.selectedTileId = null;
+  state.activeSlot = null;
+  els.skipButton.disabled = true;
+  els.dontKnowButton.disabled = true;
+  els.poolCheckButton.textContent = state.run.queue.length === 0 ? 'View results' : 'Next word';
+  renderQuestions();
+  renderPool();
+  renderProgress();
+  hideStatus();
 }
 
 function isEntryCorrect(entry) {
@@ -1206,6 +1287,22 @@ function isEntryCorrect(entry) {
   return normalized.length > 0 && meaningsFor(entry).some((meaning) => normalizeMeaning(meaning) === normalized);
 }
 
+function studyAnswerFingerprint(entry) {
+  if (state.mode === 'pool') {
+    return (state.answers.get(entry.id) || []).map((value) => value?.kanji || '').join('');
+  }
+  return String(state.answers.get(entry.id) || '').normalize('NFKC').trim();
+}
+
+function isStudyAnswerComplete() {
+  const entry = currentStudyEntry();
+  if (!entry) return false;
+  const answer = state.answers.get(entry.id);
+  return state.mode === 'pool'
+    ? !(answer || []).some((value) => !value?.kanji)
+    : String(answer || '').trim().length > 0;
+}
+
 function checkAnswers() {
   if (isSingleWordMode()) {
     checkStudyWord();
@@ -1229,9 +1326,7 @@ function checkAnswers() {
   for (const entry of attemptedEntries) {
     const correct = isEntryCorrect(entry);
     if (correct) correctCount += 1;
-    reviewEntry(entry, correct);
   }
-  saveStoredProgress();
 
   state.checked = true;
   state.selectedTileId = null;
@@ -1246,11 +1341,20 @@ function checkAnswers() {
 }
 
 function checkStudyWord() {
+  if (state.run?.summaryVisible) {
+    beginRun();
+    return;
+  }
+
+  if (state.checked && state.run?.queue.length === 0) {
+    showRunSummary();
+    return;
+  }
+
   const entry = currentStudyEntry();
   if (!entry) return;
 
   if (state.checked) {
-    state.lastStudyEntryId = entry.id;
     selectActiveEntries();
     resetPractice({ preservePool: true });
     return;
@@ -1275,16 +1379,24 @@ function checkStudyWord() {
   }
 
   const correct = isEntryCorrect(entry);
-  reviewEntry(entry, correct);
-  saveStoredProgress();
-  state.checked = true;
-  state.selectedTileId = null;
-  state.activeSlot = null;
-  els.skipButton.disabled = true;
-  els.poolCheckButton.textContent = 'Next word';
+  const answerFingerprint = studyAnswerFingerprint(entry);
+  const repeatsLastSubmission = state.lastSubmittedAnswers.get(entry.id) === answerFingerprint;
+  const attempts = (state.studyAttempts.get(entry.id) || 0) + (repeatsLastSubmission ? 0 : 1);
+  if (!repeatsLastSubmission) {
+    state.studyAttempts.set(entry.id, attempts);
+    state.lastSubmittedAnswers.set(entry.id, answerFingerprint);
+  }
+
+  if (correct) {
+    const result = attempts === 1 ? 'clean' : 'struggled';
+    completeStudyWord(entry, result, attempts, 1 / attempts);
+    return;
+  }
+
+  state.incorrectEntryId = entry.id;
+  state.revealedEntryId = null;
   renderQuestions();
   renderPool();
-  renderProgress();
   hideStatus();
 }
 
@@ -1293,15 +1405,43 @@ function skipStudyWord() {
   const entry = currentStudyEntry();
   if (!entry) return;
 
-  state.skippedStudyEntryIds.add(entry.id);
-  state.lastStudyEntryId = entry.id;
+  if (state.run.queue.length <= 1) {
+    els.status.className = 'status bad';
+    els.status.textContent = 'No other word remains to move ahead of this one.';
+    return;
+  }
+
+  state.lastSubmittedAnswers.delete(entry.id);
+  state.run.queue = [...state.run.queue.slice(1), state.run.queue[0]];
   selectActiveEntries();
   resetPractice({ preservePool: true });
 }
 
+function dontKnowStudyWord() {
+  if (!isSingleWordMode() || state.checked) return;
+  const entry = currentStudyEntry();
+  if (!entry) return;
+
+  state.studyAttempts.set(entry.id, (state.studyAttempts.get(entry.id) || 0) + 1);
+  state.lastSubmittedAnswers.delete(entry.id);
+  state.run.queue = [...state.run.queue.slice(1), state.run.queue[0]];
+  state.checked = true;
+  state.incorrectEntryId = null;
+  state.revealedEntryId = entry.id;
+  state.selectedTileId = null;
+  state.activeSlot = null;
+  els.skipButton.disabled = true;
+  els.dontKnowButton.disabled = true;
+  els.poolCheckButton.textContent = 'Continue';
+  renderQuestions();
+  renderPool();
+  renderProgress();
+  hideStatus();
+}
+
 function clearCheckedVisuals() {
-  if (!state.checked) return;
-  state.checked = false;
+  if (state.checked || !state.incorrectEntryId) return;
+  state.incorrectEntryId = null;
   els.checkButton.textContent = 'Check answers';
   els.poolCheckButton.textContent = 'Check word';
   hideStatus();
@@ -1317,8 +1457,8 @@ function clearCheckedVisuals() {
 }
 
 function clearCheckedState() {
-  if (!state.checked) return;
-  state.checked = false;
+  if (state.checked) return;
+  state.incorrectEntryId = null;
   hideStatus();
 }
 
@@ -1349,24 +1489,21 @@ function escapeHtml(value) {
 }
 
 function clearCurrentProgress() {
-  if (!window.confirm('Clear saved progress for this lesson and mode?')) return;
+  if (!window.confirm('Clear saved statistics for this lesson and mode?')) return;
   const prefix = `${state.setId}|${state.mode}|`;
-  for (const key of Object.keys(state.progress)) {
-    if (key.startsWith(prefix)) delete state.progress[key];
+  for (const key of Object.keys(state.stats.words)) {
+    if (key.startsWith(prefix)) delete state.stats.words[key];
   }
-  saveStoredProgress();
-  state.skippedStudyEntryIds.clear();
-  selectActiveEntries();
-  resetPractice();
+  state.stats.tests = state.stats.tests.filter((test) => test.setId !== state.setId || test.mode !== state.mode);
+  saveStoredStats();
+  beginRun();
 }
 
 function clearAllProgress() {
-  if (!window.confirm('Clear all saved progress for every lesson and mode?')) return;
-  state.progress = {};
-  state.skippedStudyEntryIds.clear();
-  saveStoredProgress();
-  selectActiveEntries();
-  resetPractice();
+  if (!window.confirm('Clear all saved statistics for every lesson and mode?')) return;
+  state.stats = { words: {}, tests: [] };
+  saveStoredStats();
+  beginRun();
 }
 
 els.backButton.addEventListener('click', () => {
@@ -1386,10 +1523,34 @@ els.backButton.addEventListener('click', () => {
 
 els.resetButton.addEventListener('click', resetPractice);
 els.skipButton.addEventListener('click', skipStudyWord);
+els.dontKnowButton.addEventListener('click', dontKnowStudyWord);
 els.clearCurrentProgress.addEventListener('click', clearCurrentProgress);
 els.clearAllProgress.addEventListener('click', clearAllProgress);
 els.checkButton.addEventListener('click', checkAnswers);
 els.poolCheckButton.addEventListener('click', checkAnswers);
+document.addEventListener('keydown', (event) => {
+  if (
+    event.key !== 'Enter'
+    || event.repeat
+    || event.isComposing
+    || !isSingleWordMode()
+    || els.practiceScreen.classList.contains('hidden')
+    || els.poolCheckButton.disabled
+  ) return;
+
+  const target = event.target;
+  const answerControl = target instanceof HTMLElement && target.matches('.kanji-tile, .slot');
+  if (
+    target === els.poolFilter
+    || target instanceof HTMLSelectElement
+    || (target instanceof HTMLElement && target.tagName === 'SUMMARY')
+    || (target instanceof HTMLButtonElement && !answerControl)
+    || (answerControl && !isStudyAnswerComplete())
+  ) return;
+
+  event.preventDefault();
+  checkStudyWord();
+});
 function syncPoolFilter() {
   state.poolFilter = els.poolFilter.value;
   const visibleIds = new Set(filteredPoolTiles().map((tile) => tile.id));
@@ -1412,8 +1573,7 @@ els.setSelect.addEventListener('change', () => {
   state.skippedStudyEntryIds.clear();
   state.poolFilter = '';
   els.poolFilter.value = '';
-  selectActiveEntries();
-  resetPractice();
+  beginRun();
 });
 window.addEventListener('resize', updatePoolTrayHeight);
 
