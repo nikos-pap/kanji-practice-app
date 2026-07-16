@@ -696,10 +696,12 @@
             "ten minutes"
           ],
           "readings": [
-            "じっぷん"
+            "じっぷん",
+            "じゅっぷん"
           ],
           "romaji": [
-            "jippun"
+            "jippun",
+            "juppun"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 730,
@@ -946,25 +948,6 @@
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 786,
-          "sourceReferences": [
-            "会L1(e)"
-          ]
-        },
-        {
-          "id": "genki-0797",
-          "word": "十分",
-          "meaning": "ten minutes",
-          "meanings": [
-            "ten minutes"
-          ],
-          "readings": [
-            "じゅっぷん"
-          ],
-          "romaji": [
-            "juppun"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 797,
           "sourceReferences": [
             "会L1(e)"
           ]
@@ -1265,27 +1248,6 @@
           ]
         },
         {
-          "id": "genki-1231",
-          "word": "何",
-          "meaning": "what",
-          "meanings": [
-            "what"
-          ],
-          "readings": [
-            "なん",
-            "なに"
-          ],
-          "romaji": [
-            "nan",
-            "nani"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1231,
-          "sourceReferences": [
-            "会L1"
-          ]
-        },
-        {
           "id": "genki-1245",
           "word": "二時",
           "meaning": "two o’clock",
@@ -1312,10 +1274,12 @@
             "twenty minutes"
           ],
           "readings": [
-            "にじっぷん"
+            "にじっぷん",
+            "にじゅっぷん"
           ],
           "romaji": [
-            "nijippun"
+            "nijippun",
+            "nijuppun"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 1246,
@@ -1340,25 +1304,6 @@
           "sourceNumber": 1247,
           "sourceReferences": [
             "会L1"
-          ]
-        },
-        {
-          "id": "genki-1250",
-          "word": "二十分",
-          "meaning": "twenty minutes",
-          "meanings": [
-            "twenty minutes"
-          ],
-          "readings": [
-            "にじゅっぷん"
-          ],
-          "romaji": [
-            "nijuppun"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1250,
-          "sourceReferences": [
-            "会L1(e)"
           ]
         },
         {
@@ -1483,32 +1428,15 @@
             "eight minutes"
           ],
           "readings": [
-            "はちふん"
-          ],
-          "romaji": [
-            "hachifun"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1333,
-          "sourceReferences": [
-            "会L1(e)"
-          ]
-        },
-        {
-          "id": "genki-1339",
-          "word": "八分",
-          "meaning": "eight minutes",
-          "meanings": [
-            "eight minutes"
-          ],
-          "readings": [
+            "はちふん",
             "はっぷん"
           ],
           "romaji": [
+            "hachifun",
             "happun"
           ],
           "partOfSpeech": "n.",
-          "sourceNumber": 1339,
+          "sourceNumber": 1333,
           "sourceReferences": [
             "会L1(e)"
           ]
@@ -2487,13 +2415,17 @@
           "meanings": [
             "sake; alcoholic drink",
             "sake",
-            "alcoholic drink"
+            "alcoholic drink",
+            "sake; alcohol",
+            "alcohol"
           ],
           "readings": [
-            "おさけ"
+            "おさけ",
+            "さけ"
           ],
           "romaji": [
-            "osake"
+            "osake",
+            "sake"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 232,
@@ -2509,10 +2441,12 @@
             "green tea"
           ],
           "readings": [
-            "おちゃ"
+            "おちゃ",
+            "ちゃ"
           ],
           "romaji": [
-            "ocha"
+            "ocha",
+            "cha"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 251,
@@ -2666,27 +2600,6 @@
           ]
         },
         {
-          "id": "genki-0666",
-          "word": "酒",
-          "meaning": "sake; alcohol",
-          "meanings": [
-            "sake; alcohol",
-            "sake",
-            "alcohol"
-          ],
-          "readings": [
-            "さけ"
-          ],
-          "romaji": [
-            "sake"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 666,
-          "sourceReferences": [
-            "会L3"
-          ]
-        },
-        {
           "id": "genki-0674",
           "word": "雑誌",
           "meaning": "magazine",
@@ -2733,10 +2646,10 @@
             "not at all"
           ],
           "readings": [
-            "ぜんぜん ＋ negative"
+            "ぜんぜん"
           ],
           "romaji": [
-            "zenzennegative"
+            "zenzen"
           ],
           "partOfSpeech": "adv.",
           "sourceNumber": 917,
@@ -2760,25 +2673,6 @@
           ],
           "partOfSpeech": "ru-v.",
           "sourceNumber": 1008,
-          "sourceReferences": [
-            "会L3"
-          ]
-        },
-        {
-          "id": "genki-1040",
-          "word": "茶",
-          "meaning": "green tea",
-          "meanings": [
-            "green tea"
-          ],
-          "readings": [
-            "ちゃ"
-          ],
-          "romaji": [
-            "cha"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1040,
           "sourceReferences": [
             "会L3"
           ]
@@ -3283,10 +3177,12 @@
             "temple"
           ],
           "readings": [
-            "おてら"
+            "おてら",
+            "てら"
           ],
           "romaji": [
-            "otera"
+            "otera",
+            "tera"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 256,
@@ -4049,25 +3945,6 @@
           "sourceNumber": 1072,
           "sourceReferences": [
             "会L2(e)",
-            "会L4"
-          ]
-        },
-        {
-          "id": "genki-1114",
-          "word": "寺",
-          "meaning": "temple",
-          "meanings": [
-            "temple"
-          ],
-          "readings": [
-            "てら"
-          ],
-          "romaji": [
-            "tera"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1114,
-          "sourceReferences": [
             "会L4"
           ]
         },
@@ -4932,10 +4809,12 @@
             "souvenir"
           ],
           "readings": [
-            "おみやげ"
+            "おみやげ",
+            "みやげ"
           ],
           "romaji": [
-            "omiyage"
+            "omiyage",
+            "miyage"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 290,
@@ -5492,25 +5371,6 @@
           ]
         },
         {
-          "id": "genki-1584",
-          "word": "土産",
-          "meaning": "souvenir",
-          "meanings": [
-            "souvenir"
-          ],
-          "readings": [
-            "みやげ"
-          ],
-          "romaji": [
-            "miyage"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1584,
-          "sourceReferences": [
-            "会L5"
-          ]
-        },
-        {
           "id": "genki-1599",
           "word": "難しい",
           "meaning": "difficult",
@@ -5693,10 +5553,12 @@
             "money"
           ],
           "readings": [
-            "おかね"
+            "おかね",
+            "かね"
           ],
           "romaji": [
-            "okane"
+            "okane",
+            "kane"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 216,
@@ -5786,25 +5648,6 @@
           "sourceReferences": [
             "会L6(e)",
             "会L20"
-          ]
-        },
-        {
-          "id": "genki-0388",
-          "word": "金",
-          "meaning": "money",
-          "meanings": [
-            "money"
-          ],
-          "readings": [
-            "かね"
-          ],
-          "romaji": [
-            "kane"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 388,
-          "sourceReferences": [
-            "会L6"
           ]
         },
         {
@@ -6891,10 +6734,12 @@
             "buttocks"
           ],
           "readings": [
-            "おしり"
+            "おしり",
+            "しり"
           ],
           "romaji": [
-            "oshiri"
+            "oshiri",
+            "shiri"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 241,
@@ -7284,25 +7129,6 @@
           ]
         },
         {
-          "id": "genki-0825",
-          "word": "尻",
-          "meaning": "buttocks",
-          "meanings": [
-            "buttocks"
-          ],
-          "readings": [
-            "しり"
-          ],
-          "romaji": [
-            "shiri"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 825,
-          "sourceReferences": [
-            "会L7(e)"
-          ]
-        },
-        {
           "id": "genki-0827",
           "word": "知りません",
           "meaning": "I do not know",
@@ -7508,10 +7334,10 @@
             "not . . . anything"
           ],
           "readings": [
-            "なにも ＋ negative"
+            "なにも"
           ],
           "romaji": [
-            "nanimonegative"
+            "nanimo"
           ],
           "partOfSpeech": "adv.",
           "sourceNumber": 1220,
@@ -7724,10 +7550,10 @@
             "nothing in particular"
           ],
           "readings": [
-            "べつに ＋ negative"
+            "べつに"
           ],
           "romaji": [
-            "betsuninegative"
+            "betsuni"
           ],
           "partOfSpeech": "adv.",
           "sourceNumber": 1469,
@@ -8025,10 +7851,12 @@
             "bath"
           ],
           "readings": [
-            "おふろ"
+            "おふろ",
+            "ふろ"
           ],
           "romaji": [
-            "ofuro"
+            "ofuro",
+            "furo"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 282,
@@ -8045,10 +7873,12 @@
             "take a bath"
           ],
           "readings": [
-            "おふろにはいる"
+            "おふろにはいる",
+            "ふろにはいる"
           ],
           "romaji": [
-            "ofuronihairu"
+            "ofuronihairu",
+            "furonihairu"
           ],
           "partOfSpeech": "u-v.",
           "sourceNumber": 283,
@@ -8617,45 +8447,6 @@
           ]
         },
         {
-          "id": "genki-1451",
-          "word": "風呂",
-          "meaning": "bath",
-          "meanings": [
-            "bath"
-          ],
-          "readings": [
-            "ふろ"
-          ],
-          "romaji": [
-            "furo"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1451,
-          "sourceReferences": [
-            "会L8"
-          ]
-        },
-        {
-          "id": "genki-1454",
-          "word": "風呂に入る",
-          "meaning": "to take a bath",
-          "meanings": [
-            "to take a bath",
-            "take a bath"
-          ],
-          "readings": [
-            "ふろにはいる"
-          ],
-          "romaji": [
-            "furonihairu"
-          ],
-          "partOfSpeech": "u-v.",
-          "sourceNumber": 1454,
-          "sourceReferences": [
-            "会L8"
-          ]
-        },
-        {
           "id": "genki-1466",
           "word": "下手",
           "meaning": "clumsy; poor at . . .",
@@ -8992,11 +8783,14 @@
             "boxed lunch"
           ],
           "readings": [
-            "おべんとう"
+            "おべんとう",
+            "べんとう"
           ],
           "romaji": [
             "obentou",
-            "obento"
+            "obento",
+            "bentou",
+            "bento"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 285,
@@ -9707,26 +9501,6 @@
           ]
         },
         {
-          "id": "genki-1477",
-          "word": "弁当",
-          "meaning": "boxed lunch",
-          "meanings": [
-            "boxed lunch"
-          ],
-          "readings": [
-            "べんとう"
-          ],
-          "romaji": [
-            "bentou",
-            "bento"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1477,
-          "sourceReferences": [
-            "会L9"
-          ]
-        },
-        {
           "id": "genki-1563",
           "word": "水色",
           "meaning": "light blue",
@@ -10089,10 +9863,12 @@
             "rich person"
           ],
           "readings": [
-            "おかねもち"
+            "おかねもち",
+            "かねもち"
           ],
           "romaji": [
-            "okanemochi"
+            "okanemochi",
+            "kanemochi"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 217,
@@ -10235,25 +10011,6 @@
           "sourceNumber": 373,
           "sourceReferences": [
             "会L10(e)"
-          ]
-        },
-        {
-          "id": "genki-0389",
-          "word": "金持ち",
-          "meaning": "rich person",
-          "meanings": [
-            "rich person"
-          ],
-          "readings": [
-            "かねもち"
-          ],
-          "romaji": [
-            "kanemochi"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 389,
-          "sourceReferences": [
-            "会L10"
           ]
         },
         {
@@ -11336,10 +11093,12 @@
             "sweets"
           ],
           "readings": [
-            "おかし"
+            "おかし",
+            "かし"
           ],
           "romaji": [
-            "okashi"
+            "okashi",
+            "kashi"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 215,
@@ -11355,11 +11114,14 @@
             "New Year’s"
           ],
           "readings": [
-            "おしょうがつ"
+            "おしょうがつ",
+            "しょうがつ"
           ],
           "romaji": [
             "oshougatsu",
-            "oshogatsu"
+            "oshogatsu",
+            "shougatsu",
+            "shogatsu"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 239,
@@ -11376,10 +11138,12 @@
             "festival"
           ],
           "readings": [
-            "おまつり"
+            "おまつり",
+            "まつり"
           ],
           "romaji": [
-            "omatsuri"
+            "omatsuri",
+            "matsuri"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 287,
@@ -11444,27 +11208,6 @@
           ],
           "partOfSpeech": "u-v.",
           "sourceNumber": 333,
-          "sourceReferences": [
-            "会L11"
-          ]
-        },
-        {
-          "id": "genki-0357",
-          "word": "菓子",
-          "meaning": "snack; sweets",
-          "meanings": [
-            "snack; sweets",
-            "snack",
-            "sweets"
-          ],
-          "readings": [
-            "かし"
-          ],
-          "romaji": [
-            "kashi"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 357,
           "sourceReferences": [
             "会L11"
           ]
@@ -11841,27 +11584,6 @@
           "partOfSpeech": "irr-v.",
           "sourceNumber": 803,
           "sourceReferences": [
-            "会L11"
-          ]
-        },
-        {
-          "id": "genki-0806",
-          "word": "正月",
-          "meaning": "New Year’s",
-          "meanings": [
-            "New Year’s"
-          ],
-          "readings": [
-            "しょうがつ"
-          ],
-          "romaji": [
-            "shougatsu",
-            "shogatsu"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 806,
-          "sourceReferences": [
-            "読L10-II",
             "会L11"
           ]
         },
@@ -12310,25 +12032,6 @@
           "sourceNumber": 1481,
           "sourceReferences": [
             "会L11(e)"
-          ]
-        },
-        {
-          "id": "genki-1543",
-          "word": "祭り",
-          "meaning": "festival",
-          "meanings": [
-            "festival"
-          ],
-          "readings": [
-            "まつり"
-          ],
-          "romaji": [
-            "matsuri"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1543,
-          "sourceReferences": [
-            "会L11"
           ]
         },
         {
@@ -13877,25 +13580,6 @@
       "promptLanguage": "en",
       "entries": [
         {
-          "id": "genki-0028",
-          "word": "預け入れ",
-          "meaning": "deposit",
-          "meanings": [
-            "deposit"
-          ],
-          "readings": [
-            "あずけいれ"
-          ],
-          "romaji": [
-            "azukeire"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 28,
-          "sourceReferences": [
-            "会L13(e)"
-          ]
-        },
-        {
           "id": "genki-0057",
           "word": "編む",
           "meaning": "to knit",
@@ -13981,10 +13665,12 @@
             "deposit"
           ],
           "readings": [
-            "おあずけいれ"
+            "おあずけいれ",
+            "あずけいれ"
           ],
           "romaji": [
-            "oazukeire"
+            "oazukeire",
+            "azukeire"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 201,
@@ -14020,10 +13706,12 @@
             "withdrawal"
           ],
           "readings": [
-            "おひきだし"
+            "おひきだし",
+            "ひきだし"
           ],
           "romaji": [
-            "ohikidashi"
+            "ohikidashi",
+            "hikidashi"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 280,
@@ -14039,10 +13727,12 @@
             "bank transfer"
           ],
           "readings": [
-            "おふりこみ"
+            "おふりこみ",
+            "ふりこみ"
           ],
           "romaji": [
-            "ofurikomi"
+            "ofurikomi",
+            "furikomi"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 281,
@@ -14714,25 +14404,6 @@
           ]
         },
         {
-          "id": "genki-1378",
-          "word": "引き出し",
-          "meaning": "withdrawal",
-          "meanings": [
-            "withdrawal"
-          ],
-          "readings": [
-            "ひきだし"
-          ],
-          "romaji": [
-            "hikidashi"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1378,
-          "sourceReferences": [
-            "会L13(e)"
-          ]
-        },
-        {
           "id": "genki-1434",
           "word": "二日",
           "meaning": "two days",
@@ -14768,25 +14439,6 @@
           "sourceNumber": 1435,
           "sourceReferences": [
             "会L13"
-          ]
-        },
-        {
-          "id": "genki-1445",
-          "word": "振込",
-          "meaning": "bank transfer",
-          "meanings": [
-            "bank transfer"
-          ],
-          "readings": [
-            "ふりこみ"
-          ],
-          "romaji": [
-            "furikomi"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1445,
-          "sourceReferences": [
-            "会L13(e)"
           ]
         },
         {
@@ -15193,10 +14845,12 @@
             "dish"
           ],
           "readings": [
-            "おさら"
+            "おさら",
+            "さら"
           ],
           "romaji": [
-            "osara"
+            "osara",
+            "sara"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 233,
@@ -15322,27 +14976,6 @@
           "sourceReferences": [
             "会L14",
             "会L14(e)"
-          ]
-        },
-        {
-          "id": "genki-0681",
-          "word": "皿",
-          "meaning": "plate; dish",
-          "meanings": [
-            "plate; dish",
-            "plate",
-            "dish"
-          ],
-          "readings": [
-            "さら"
-          ],
-          "romaji": [
-            "sara"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 681,
-          "sourceReferences": [
-            "会L14"
           ]
         },
         {
@@ -17713,10 +17346,12 @@
             "hot water"
           ],
           "readings": [
-            "おゆ"
+            "おゆ",
+            "ゆ"
           ],
           "romaji": [
-            "oyu"
+            "oyu",
+            "yu"
           ],
           "partOfSpeech": "n.",
           "sourceNumber": 303,
@@ -17783,27 +17418,6 @@
           ],
           "partOfSpeech": "ru-v.",
           "sourceNumber": 343,
-          "sourceReferences": [
-            "会L17"
-          ]
-        },
-        {
-          "id": "genki-0352",
-          "word": "かける（鍵を）",
-          "meaning": "to lock",
-          "meanings": [
-            "to lock",
-            "lock"
-          ],
-          "readings": [
-            "かける（かぎを）"
-          ],
-          "romaji": [
-            "kakerukagiwo",
-            "kakerukagio"
-          ],
-          "partOfSpeech": "ru-v.",
-          "sourceNumber": 352,
           "sourceReferences": [
             "会L17"
           ]
@@ -18389,25 +18003,6 @@
           ],
           "partOfSpeech": "suf.",
           "sourceNumber": 1523,
-          "sourceReferences": [
-            "会L17"
-          ]
-        },
-        {
-          "id": "genki-1674",
-          "word": "湯",
-          "meaning": "hot water",
-          "meanings": [
-            "hot water"
-          ],
-          "readings": [
-            "ゆ"
-          ],
-          "romaji": [
-            "yu"
-          ],
-          "partOfSpeech": "n.",
-          "sourceNumber": 1674,
           "sourceReferences": [
             "会L17"
           ]
@@ -20789,27 +20384,6 @@
           ]
         },
         {
-          "id": "genki-0083",
-          "word": "言う（文句を）",
-          "meaning": "to complain",
-          "meanings": [
-            "to complain",
-            "complain"
-          ],
-          "readings": [
-            "いう（もんくを）"
-          ],
-          "romaji": [
-            "iumonkuwo",
-            "iumonkuo"
-          ],
-          "partOfSpeech": "u-v.",
-          "sourceNumber": 83,
-          "sourceReferences": [
-            "会L21"
-          ]
-        },
-        {
           "id": "genki-0220",
           "word": "置く",
           "meaning": "to put; to lay; to place",
@@ -22558,27 +22132,6 @@
           ],
           "partOfSpeech": "u-v.",
           "sourceNumber": 59,
-          "sourceReferences": [
-            "会L23"
-          ]
-        },
-        {
-          "id": "genki-0084",
-          "word": "言う（悪口を）",
-          "meaning": "to talk behind someone’s back",
-          "meanings": [
-            "to talk behind someone’s back",
-            "talk behind someone’s back"
-          ],
-          "readings": [
-            "いう（わるぐちを）"
-          ],
-          "romaji": [
-            "iuwaruguchiwo",
-            "iuwaruguchio"
-          ],
-          "partOfSpeech": "u-v.",
-          "sourceNumber": 84,
           "sourceReferences": [
             "会L23"
           ]

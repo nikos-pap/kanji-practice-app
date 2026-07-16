@@ -1,4 +1,4 @@
-const DATA_URL = './data/kanji-practice.json?v=ban-gloss-20260713';
+const DATA_URL = './data/kanji-practice.json?v=deduplicated-vocabulary-20260716';
 const KANJI_READINGS_URL = './data/kanji-readings.txt';
 const MODE_IDS = ['pool', 'japanese', 'reading', 'meaning'];
 const DISABLED_MODE_IDS = new Set(['reading', 'meaning']);
